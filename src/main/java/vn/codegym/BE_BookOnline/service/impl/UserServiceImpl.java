@@ -2,6 +2,9 @@ package vn.codegym.BE_BookOnline.service.impl;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -11,6 +14,7 @@ import vn.codegym.BE_BookOnline.dto.request.UserRegisterRequest;
 import vn.codegym.BE_BookOnline.dto.response.AuthResponse;
 import vn.codegym.BE_BookOnline.dto.response.UpdateUserResponse;
 import vn.codegym.BE_BookOnline.dto.response.UserProfile;
+import vn.codegym.BE_BookOnline.exception.ResourceNotFoundException;
 import vn.codegym.BE_BookOnline.model.Role;
 import vn.codegym.BE_BookOnline.model.User;
 import vn.codegym.BE_BookOnline.repository.RoleRepository;
@@ -35,7 +39,7 @@ public class UserServiceImpl implements UserService {
 
     private final JwtService jwtService;
 
-    private AuthenticationManager authenticationManager;
+    private final AuthenticationManager authenticationManager;
 
     @Override
     @Transactional
@@ -75,7 +79,37 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public AuthResponse loginUser(UserLoginRequest request) {
-        return null;
+        // buoc nay tu dong gọi UserSecurityService.loadUserByUsername()
+        Authentication authentication = authenticationManager.authenticate(
+                new UsernamePasswordAuthenticationToken(
+                        request.getEmail(),
+                        request.getPassword()
+                )
+        );
+        // Luu thong tin vao security context
+        SecurityContextHolder.getContext().setAuthentication(authentication);
+
+        // lay UserDetails object da duoc xac thuc
+        org.springframework.security.core.userdetails.User springUser =
+                (org.springframework.security.core.userdetails.User)authentication.getPrincipal();
+        // lay lai user tu DB de lay cac thong tin khac
+        User user = userRepository.findByEmail(springUser.getUsername())
+                .orElseThrow(() -> new ResourceNotFoundException("Không tìm thấy người dùng ..."));
+
+        String token = jwtService.generateToken(user.getEmail());
+
+        List<String> roleNames = user.getRoles().stream()//tao luong role
+                .map(Role::getNameRole)// role -> String
+                .toList();// gom thanh list
+
+        return AuthResponse.builder()
+                .token(token)
+                .email(user.getEmail())
+                .username(user.getUsername())
+                .roles(roleNames)
+                .userId(user.getId())
+                .build();
+
     }
 
     @Override

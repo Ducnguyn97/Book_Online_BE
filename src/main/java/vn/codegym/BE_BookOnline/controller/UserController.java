@@ -9,7 +9,9 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.servlet.View;
+import vn.codegym.BE_BookOnline.dto.request.UserLoginRequest;
 import vn.codegym.BE_BookOnline.dto.request.UserRegisterRequest;
+import vn.codegym.BE_BookOnline.dto.response.AuthResponse;
 import vn.codegym.BE_BookOnline.service.UserService;
 
 import java.util.stream.Collectors;
@@ -40,5 +42,10 @@ public class UserController {
             return ResponseEntity.internalServerError().body("Đăng ký thất bại do lỗi hệ thống. ");
         }
 
+    }
+    @PostMapping("/login")
+    public ResponseEntity<AuthResponse> login(@Valid @RequestBody UserLoginRequest request){
+        AuthResponse response = userService.loginUser(request);
+        return ResponseEntity.ok(response);
     }
 }
