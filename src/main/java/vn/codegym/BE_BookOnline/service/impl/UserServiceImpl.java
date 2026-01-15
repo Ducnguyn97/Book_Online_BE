@@ -14,7 +14,10 @@ import vn.codegym.BE_BookOnline.dto.request.UserRegisterRequest;
 import vn.codegym.BE_BookOnline.dto.response.AuthResponse;
 import vn.codegym.BE_BookOnline.dto.response.UpdateUserResponse;
 import vn.codegym.BE_BookOnline.dto.response.UserProfile;
+import vn.codegym.BE_BookOnline.exception.EmailNotVerifiedException;
+import vn.codegym.BE_BookOnline.exception.InvalidCredentialsException;
 import vn.codegym.BE_BookOnline.exception.ResourceNotFoundException;
+import vn.codegym.BE_BookOnline.exception.UserAlreadyExistsException;
 import vn.codegym.BE_BookOnline.model.Role;
 import vn.codegym.BE_BookOnline.model.User;
 import vn.codegym.BE_BookOnline.repository.RoleRepository;
@@ -46,15 +49,15 @@ public class UserServiceImpl implements UserService {
     public User registerUser(UserRegisterRequest request) {
 
         if(userRepository.existsByEmail(request.getEmail())){
-            throw new IllegalArgumentException("Email đã được đăng ký vui lòng sử dụng email khác.");
+            throw new EmailNotVerifiedException("Email đã được đăng ký vui lòng sử dụng email khác.");
         }
 
         if(userRepository.existsByUsername(request.getUserName())){
-            throw new IllegalArgumentException("Tên người dùng đã được sử dụng vui lòng sử dụng tên khác.");
+            throw new UserAlreadyExistsException("Tên người dùng đã được sử dụng vui lòng sử dụng tên khác.");
         }
 
         if(!request.getPassword().equals(request.getConfirmPassword())){
-            throw new IllegalArgumentException("Mật khẩu và xác nhận mật khẩu không trùng khớp vui lòng nhập lại. ");
+            throw new InvalidCredentialsException("Mật khẩu và xác nhận mật khẩu không trùng khớp vui lòng nhập lại. ");
         }
 
         String token = UUID.randomUUID().toString();
