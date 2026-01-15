@@ -7,4 +7,5 @@ import vn.codegym.BE_BookOnline.model.Role;
 
 @Repository
 public interface RoleRepository extends JpaRepository<Role, Long> {
+    Role findByNameRole(String customer);
 }

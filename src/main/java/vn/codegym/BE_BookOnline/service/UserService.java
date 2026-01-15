@@ -6,11 +6,10 @@ import vn.codegym.BE_BookOnline.dto.request.UserRegisterRequest;
 import vn.codegym.BE_BookOnline.dto.response.AuthResponse;
 import vn.codegym.BE_BookOnline.dto.response.UpdateUserResponse;
 import vn.codegym.BE_BookOnline.dto.response.UserProfile;
-import vn.codegym.BE_BookOnline.dto.response.UserRegisterResponse;
 import vn.codegym.BE_BookOnline.model.User;
 
 public interface UserService {
-    UserRegisterResponse registerUser(UserRegisterRequest request);
+    User registerUser(UserRegisterRequest request);
 
     AuthResponse loginUser(UserLoginRequest request);
 

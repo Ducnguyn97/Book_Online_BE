@@ -1,10 +1,7 @@
 package vn.codegym.BE_BookOnline.model;
 
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
-import lombok.ToString;
+import lombok.*;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -14,6 +11,7 @@ import java.util.List;
 @Table(name = "users")
 @NoArgsConstructor
 @AllArgsConstructor
+@Builder
 @ToString(exclude = {"cart", "reviews", "wishLists", "addresses", "roles"})
 public class User {
     @Id
@@ -30,24 +28,24 @@ public class User {
     @Column(name = "email", nullable = false, unique = true)
     private String email;
 
-    @Column(name = "gender", nullable = false)
+    @Column(name = "gender")
     private String gender;
 
-    @Column(name = "phone_number", nullable = false, unique = true)
+    @Column(name = "phone_number", unique = true)
     private String phoneNumber;
 
-    @Column(name = "first_name", nullable = false)
+    @Column(name = "first_name")
     private String firstName;
 
-    @Column(name = "last_name", nullable = false)
+    @Column(name = "last_name")
     private String lastName;
 
     @Column(name = "avatar")
     private String avatar;
     @Column(name = "enabled", nullable = false)
-    private boolean enabled;
+    private boolean enabled = false;
 
-    private String emailVerified;
+    private boolean emailVerified;
     private String verificationCode;
     private LocalDateTime expiredAt;
 

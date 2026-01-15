@@ -1,19 +1,76 @@
 package vn.codegym.BE_BookOnline.service.impl;
 
+import lombok.RequiredArgsConstructor;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import vn.codegym.BE_BookOnline.dto.request.UpdateUserRequest;
 import vn.codegym.BE_BookOnline.dto.request.UserLoginRequest;
 import vn.codegym.BE_BookOnline.dto.request.UserRegisterRequest;
 import vn.codegym.BE_BookOnline.dto.response.AuthResponse;
 import vn.codegym.BE_BookOnline.dto.response.UpdateUserResponse;
 import vn.codegym.BE_BookOnline.dto.response.UserProfile;
-import vn.codegym.BE_BookOnline.dto.response.UserRegisterResponse;
+import vn.codegym.BE_BookOnline.model.Role;
+import vn.codegym.BE_BookOnline.model.User;
+import vn.codegym.BE_BookOnline.repository.RoleRepository;
+import vn.codegym.BE_BookOnline.repository.UserRepository;
 import vn.codegym.BE_BookOnline.service.UserService;
+import vn.codegym.BE_BookOnline.service.jwt.JwtService;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.UUID;
+
+@Service
+@RequiredArgsConstructor
 
 public class UserServiceImpl implements UserService {
 
+    private final UserRepository userRepository;
+
+    private final RoleRepository roleRepository;
+
+    private final PasswordEncoder passwordEncoder;
+
+    private final JwtService jwtService;
+
+    private AuthenticationManager authenticationManager;
+
     @Override
-    public UserRegisterResponse registerUser(UserRegisterRequest request) {
-        return null;
+    @Transactional
+    public User registerUser(UserRegisterRequest request) {
+
+        if(userRepository.existsByEmail(request.getEmail())){
+            throw new IllegalArgumentException("Email đã được đăng ký vui lòng sử dụng email khác.");
+        }
+
+        if(userRepository.existsByUsername(request.getUserName())){
+            throw new IllegalArgumentException("Tên người dùng đã được sử dụng vui lòng sử dụng tên khác.");
+        }
+
+        if(!request.getPassword().equals(request.getConfirmPassword())){
+            throw new IllegalArgumentException("Mật khẩu và xác nhận mật khẩu không trùng khớp vui lòng nhập lại. ");
+        }
+
+        String token = UUID.randomUUID().toString();
+        //role mac dinh user
+        List<Role> roles = new ArrayList<>();
+        roles.add(roleRepository.findByNameRole("CUSTOMER"));
+        request.setRoles(roles);
+
+        User newUser = User.builder()
+                .email(request.getEmail())
+                .username(request.getUserName())
+                .password(passwordEncoder.encode(request.getPassword()))
+                .roles(request.getRoles())
+                .enabled(false)
+                .emailVerified(false)
+                .verificationCode(token)
+                .build();
+
+        User saveUser = userRepository.save(newUser);
+        return saveUser;
     }
 
     @Override
