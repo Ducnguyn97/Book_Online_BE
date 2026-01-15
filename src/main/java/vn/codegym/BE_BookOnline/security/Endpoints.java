@@ -1,4 +1,4 @@
-package vn.codegym.BE_BookOnline.config;
+package vn.codegym.BE_BookOnline.security;
 
 public class Endpoints {
     public static final String font_end_host = "http://localhost:5173";
