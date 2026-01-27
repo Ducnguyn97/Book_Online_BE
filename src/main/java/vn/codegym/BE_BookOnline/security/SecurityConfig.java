@@ -36,7 +36,9 @@ public class SecurityConfig {
     @Bean
     public DaoAuthenticationProvider authenticationProvider(){
         DaoAuthenticationProvider daoAuthenticationProvider = new DaoAuthenticationProvider();
+        // chỉ cho DaoAuthenticationProvider biết cho lưu thong tin trong database
         daoAuthenticationProvider.setUserDetailsService(userSecurityService);
+        // khởi tạo phần kiểm tra password vơi user dang nhap va user trong database
         daoAuthenticationProvider.setPasswordEncoder(passwordEncoder());
         return daoAuthenticationProvider;
     }

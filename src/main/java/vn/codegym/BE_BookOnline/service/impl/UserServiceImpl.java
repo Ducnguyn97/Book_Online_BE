@@ -22,6 +22,7 @@ import vn.codegym.BE_BookOnline.model.Role;
 import vn.codegym.BE_BookOnline.model.User;
 import vn.codegym.BE_BookOnline.repository.RoleRepository;
 import vn.codegym.BE_BookOnline.repository.UserRepository;
+import vn.codegym.BE_BookOnline.service.EmailService;
 import vn.codegym.BE_BookOnline.service.UserService;
 import vn.codegym.BE_BookOnline.service.jwt.JwtService;
 
@@ -43,6 +44,8 @@ public class UserServiceImpl implements UserService {
     private final JwtService jwtService;
 
     private final AuthenticationManager authenticationManager;
+
+    private final EmailService emailService;
 
     @Override
     @Transactional
@@ -77,6 +80,19 @@ public class UserServiceImpl implements UserService {
                 .build();
 
         User saveUser = userRepository.save(newUser);
+
+        try{
+            String recipientName = saveUser.getUsername() != null
+                    ?saveUser.getUsername()
+                    :saveUser.getEmail();
+            emailService.sendVerificationEmail(
+                    saveUser.getEmail(),
+                    recipientName,
+                    token
+            );
+        }catch (Exception e){
+            System.err.println(" Lỗi gửi email: "+e.getMessage());
+        }
         return saveUser;
     }
 
@@ -87,7 +103,7 @@ public class UserServiceImpl implements UserService {
                 new UsernamePasswordAuthenticationToken(
                         request.getEmail(),
                         request.getPassword()
-                )
+                )// object DTO cua spring security chứa Email va password mà người dùng gửi lên
         );
         // Luu thong tin vao security context
         SecurityContextHolder.getContext().setAuthentication(authentication);
@@ -148,5 +164,24 @@ public class UserServiceImpl implements UserService {
     @Override
     public void completeForgotUserPassword(String email, String newPassword, String token) {
 
+    }
+
+    @Override
+    public User verifyAccount(String token) {
+        //tim user bằng token
+        User user = userRepository.findByVerificationCode(token)
+                .orElseThrow(() -> new IllegalArgumentException("Token không hợp lệ hoặc không tồn tại. "));
+        // kiem tra xem user duoc kich hoat chua
+        if(Boolean.TRUE.equals(user.isEnabled())){
+            return user;
+        }
+
+        user.setEnabled(true);
+        user.setEmailVerified(true);
+        user.setVerificationCode(null);
+
+        userRepository.save(user);
+
+        return user;
     }
 }

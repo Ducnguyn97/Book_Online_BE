@@ -26,4 +26,6 @@ public interface UserService {
     void initiateForgotPassword(String email);//send email with token
 
     void completeForgotUserPassword(String email, String newPassword, String token);//reset password using token
+
+    User verifyAccount(String token);
 }
