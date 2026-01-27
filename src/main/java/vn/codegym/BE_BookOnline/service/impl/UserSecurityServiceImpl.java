@@ -35,7 +35,7 @@ public class UserSecurityServiceImpl implements UserSecurityService {
         if(!user.isEnabled()){
             throw new RuntimeException("Tài khoản này đã bị khóa!!!");
         }
-
+        //ham lay role
         List<SimpleGrantedAuthority> authorities = user.getRoles().stream()
                 .map(role -> new SimpleGrantedAuthority(role.getNameRole()))
                 .collect(Collectors.toList());

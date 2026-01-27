@@ -11,6 +11,7 @@ public class Endpoints {
             "api/images/**",
             "api/reviews/**",
             "api/reviews/get-review/**",
+            "api/users/activate",
             "/api/vnpay/**"//call back thanh toan
     };
 
