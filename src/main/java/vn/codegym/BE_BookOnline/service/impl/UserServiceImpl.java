@@ -1,6 +1,12 @@
 package vn.codegym.BE_BookOnline.service.impl;
 
+import com.google.api.client.googleapis.auth.oauth2.GoogleIdToken;
+import com.google.api.client.googleapis.auth.oauth2.GoogleIdTokenVerifier;
+import com.google.api.client.http.javanet.NetHttpTransport;
+import com.google.api.client.json.gson.GsonFactory;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -8,6 +14,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import vn.codegym.BE_BookOnline.dto.request.GoogleLoginRequest;
 import vn.codegym.BE_BookOnline.dto.request.UpdateUserRequest;
 import vn.codegym.BE_BookOnline.dto.request.UserLoginRequest;
 import vn.codegym.BE_BookOnline.dto.request.UserRegisterRequest;
@@ -18,6 +25,8 @@ import vn.codegym.BE_BookOnline.exception.EmailNotVerifiedException;
 import vn.codegym.BE_BookOnline.exception.InvalidCredentialsException;
 import vn.codegym.BE_BookOnline.exception.ResourceNotFoundException;
 import vn.codegym.BE_BookOnline.exception.UserAlreadyExistsException;
+import vn.codegym.BE_BookOnline.model.Address;
+import vn.codegym.BE_BookOnline.model.Enum.AuthProvider;
 import vn.codegym.BE_BookOnline.model.Role;
 import vn.codegym.BE_BookOnline.model.User;
 import vn.codegym.BE_BookOnline.repository.RoleRepository;
@@ -26,14 +35,19 @@ import vn.codegym.BE_BookOnline.service.EmailService;
 import vn.codegym.BE_BookOnline.service.UserService;
 import vn.codegym.BE_BookOnline.service.jwt.JwtService;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.UUID;
+import java.io.IOException;
+import java.security.GeneralSecurityException;
+import java.time.Instant;
+import java.util.*;
 
 @Service
 @RequiredArgsConstructor
+@Slf4j
 
 public class UserServiceImpl implements UserService {
+
+    @Value("${google.client.id}")
+    private String googleClientId;
 
     private final UserRepository userRepository;
 
@@ -77,6 +91,7 @@ public class UserServiceImpl implements UserService {
                 .enabled(false)
                 .emailVerified(false)
                 .verificationCode(token)
+                .authProvider(AuthProvider.LOCAL)
                 .build();
 
         User saveUser = userRepository.save(newUser);
@@ -97,7 +112,7 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public AuthResponse loginUser(UserLoginRequest request) {
+    public AuthResponse loginWithLocal(UserLoginRequest request) {
         // buoc nay tu dong gọi UserSecurityService.loadUserByUsername()
         Authentication authentication = authenticationManager.authenticate(
                 new UsernamePasswordAuthenticationToken(
@@ -131,9 +146,154 @@ public class UserServiceImpl implements UserService {
 
     }
 
+   // =====================================================================
+    // LOGIN GOOGLE
+    // =====================================================================
     @Override
+    @Transactional
+    public AuthResponse loginWithGoogle(GoogleLoginRequest request) {
+        String rawToken = request.getIdToken();
+
+        // ---------- validate input ------------------------------------------
+        if (rawToken == null || rawToken.trim().isEmpty()) {
+            throw new InvalidCredentialsException("ID Token từ Google trống.");
+        }
+        rawToken = rawToken.trim();
+
+        GoogleIdToken idToken = verifyGoogleToken(rawToken);
+
+        // ---------- lấy thông tin từ payload ------------------------------------
+        GoogleIdToken.Payload payload = idToken.getPayload();
+        String email     = payload.getEmail();
+        String username  = (String) payload.get("name");
+        String avatarUrl = (String) payload.get("picture");
+
+        // ---------- tìm hoặc tạo user ------------------------------------------
+        User user = userRepository.findByEmail(email)
+                .orElseGet(() -> createGoogleUser(email, username, avatarUrl));
+
+        // ---------- issue JWT --------------------------------------------------
+        String token = jwtService.generateToken(user.getEmail());
+
+        List<String> roleNames = user.getRoles().stream()
+                .map(Role::getNameRole)
+                .toList();
+
+        return AuthResponse.builder()
+                .token(token)
+                .roles(roleNames)
+                .email(email)
+                .username(username)
+                .userId(user.getId())
+                .build();
+    }
+
+    /**
+     * Xác thực Google ID Token
+     */
+    private GoogleIdToken verifyGoogleToken(String idTokenString) {
+        GoogleIdTokenVerifier verifier = new GoogleIdTokenVerifier.Builder(
+                new NetHttpTransport(), new GsonFactory())
+                .setAudience(Collections.singletonList(googleClientId))
+                .build();
+
+        try {
+            GoogleIdToken idToken = verifier.verify(idTokenString);
+
+            if (idToken == null) {
+                throw new InvalidCredentialsException(
+                        "Xác thực Google thất bại. Token không hợp lệ hoặc đã hết hạn."
+                );
+            }
+
+            return idToken;
+
+        } catch (GeneralSecurityException e) {
+            log.error("Lỗi bảo mật khi xác thực Google token: {}", e.getMessage());
+            throw new InvalidCredentialsException("Xác thực Google thất bại: " + e.getMessage());
+        } catch (IOException e) {
+            log.error("Lỗi IO khi xác thực Google token: {}", e.getMessage());
+            throw new InvalidCredentialsException("Không thể kết nối đến Google để xác thực.");
+        } catch (IllegalArgumentException e) {
+            log.error("Token không hợp lệ: {}", e.getMessage());
+            throw new InvalidCredentialsException("Token không đúng định dạng.");
+        }
+    }
+
+    /**
+     * Helper: tạo User mới khi đăng nhập Google lần đầu.
+     * - Không cần password (đặt 1 giá trị random đã encode để pass DB constraint)
+     * - Auto-activate (enabled = true, emailVerified = true) vì Google đã verify email
+     * - authProvider = GOOGLE
+     */
+    private User createGoogleUser(String email, String name, String avatarUrl) {
+        String baseUsername = email.split("@")[0];
+        String username = userRepository.existsByUsername(baseUsername)
+                ?baseUsername + "_" + UUID.randomUUID().toString().substring(0,8)
+                : baseUsername;
+        List<Role> roles = new ArrayList<>();
+        roles.add(roleRepository.findByNameRole("CUSTOMER"));
+
+        User newUser = new User().builder()
+                .email(email)
+                .username(username)
+                .password(passwordEncoder.encode(UUID.randomUUID().toString()))
+                .avatar(avatarUrl)
+                .roles(roles)
+                .fullName(name)
+                .enabled(true)
+                .emailVerified(true)
+                .authProvider(AuthProvider.GOOGLE)
+                .build();
+        return userRepository.save(newUser);
+    }
+
+    @Override
+    @Transactional
     public UpdateUserResponse updateUser(String email, UpdateUserRequest request) {
-        return null;
+        User user = userRepository.findByEmail(email)
+                .orElseThrow(() -> new ResourceNotFoundException("Không tìm thấy người dùng ..."));
+        user.setUsername(request.getUsername());
+        user.setFullName(request.getFullName());
+        user.setPhoneNumber(request.getPhoneNumber());
+        user.setGender(request.getGender());
+        updateDefaultAddressForUser(user, request);
+
+        userRepository.save(user);
+
+        return UpdateUserResponse.builder()
+                .username(user.getUsername())
+                .fullName(user.getFullName())
+                .phoneNumber(user.getPhoneNumber())
+                .gender(user.getGender())
+                .street(request.getStreet())
+                .provinceId(request.getProvinceId())
+                .districtId(request.getDistrictId())
+                .wardcode(request.getWardcode())
+                .build();
+    }
+
+    // logic: tim hoac tao dia chi mac dinh cho user neu chua co
+    private void updateDefaultAddressForUser(User user, UpdateUserRequest request) {
+        Address addressToUpdate = user.getAddresses().stream()
+                .filter(Address::getIsDefault)
+                .findFirst()
+                .orElseGet(()-> {
+                    Address newAddress = new Address();
+                    newAddress.setUser(user);
+                    newAddress.setIsDefault(true);
+                    if(user.getAddresses() == null) {
+                        user.setAddresses(new ArrayList<>());
+                    }
+                    user.getAddresses().add(newAddress);
+                    return newAddress;
+                });
+        addressToUpdate.setStreet(request.getStreet());
+        addressToUpdate.setContactName(request.getFullName());
+        addressToUpdate.setContactPhone(request.getPhoneNumber());
+        addressToUpdate.setProvinceId(request.getProvinceId());
+        addressToUpdate.setDistrictId(request.getDistrictId());
+        addressToUpdate.setWardCode(request.getWardcode());
     }
 
     @Override

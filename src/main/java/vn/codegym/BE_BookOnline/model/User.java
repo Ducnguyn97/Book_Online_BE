@@ -2,6 +2,7 @@ package vn.codegym.BE_BookOnline.model;
 
 import jakarta.persistence.*;
 import lombok.*;
+import vn.codegym.BE_BookOnline.model.Enum.AuthProvider;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -34,20 +35,24 @@ public class User {
     @Column(name = "phone_number", unique = true)
     private String phoneNumber;
 
-    @Column(name = "first_name")
-    private String firstName;
-
-    @Column(name = "last_name")
-    private String lastName;
+    @Column(name = "full_name")
+    private String fullName;
 
     @Column(name = "avatar")
     private String avatar;
+
+    @Builder.Default// thêm cái này để mặc định giá trị khi dùng builder
     @Column(name = "enabled", nullable = false)
     private boolean enabled = false;
 
-    private boolean emailVerified;
+    @Builder.Default
+    private boolean emailVerified =false;
     private String verificationCode;
     private LocalDateTime expiredAt;
+
+    @Enumerated(EnumType.STRING)
+    @Column(name = "auth_provider")
+    private AuthProvider authProvider;
 
     @OneToOne(mappedBy = "user", cascade = {CascadeType.DETACH, CascadeType.MERGE, CascadeType.PERSIST,CascadeType.REFRESH}, fetch = FetchType.LAZY)
     private Cart cart;

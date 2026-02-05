@@ -18,6 +18,7 @@ public class Endpoints {
     public static final String[] PUBLIC_POST = {
             "api/users/register",
             "api/users/login",
+            "api/users/google-login",
             "api/vnpay/create_payment"
 
     };

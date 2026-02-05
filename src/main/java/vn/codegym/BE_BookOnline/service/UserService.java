@@ -1,5 +1,6 @@
 package vn.codegym.BE_BookOnline.service;
 
+import vn.codegym.BE_BookOnline.dto.request.GoogleLoginRequest;
 import vn.codegym.BE_BookOnline.dto.request.UpdateUserRequest;
 import vn.codegym.BE_BookOnline.dto.request.UserLoginRequest;
 import vn.codegym.BE_BookOnline.dto.request.UserRegisterRequest;
@@ -11,7 +12,9 @@ import vn.codegym.BE_BookOnline.model.User;
 public interface UserService {
     User registerUser(UserRegisterRequest request);
 
-    AuthResponse loginUser(UserLoginRequest request);
+    AuthResponse loginWithLocal(UserLoginRequest request);
+
+    AuthResponse loginWithGoogle(GoogleLoginRequest request);
 
     UpdateUserResponse updateUser(String email, UpdateUserRequest request);
 
