@@ -42,7 +42,7 @@ public class JwtService {
         User user = userSecurityService.findByUserEmail(email);
         claims.put("id", user.getId());
         claims.put("avatar", user.getAvatar());
-        claims.put("lastname", user.getLastName());
+        claims.put("lastname", user.getFullName());
         claims.put("enabled", user.isEnabled());
 
         List <Role> roles = user.getRoles();

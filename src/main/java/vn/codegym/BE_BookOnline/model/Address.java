@@ -2,22 +2,29 @@ package vn.codegym.BE_BookOnline.model;
 
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import java.util.List;
 
 @Entity
 @Data
 @Table(name = "addresses")
 @NoArgsConstructor
 @AllArgsConstructor
+@Builder
 
 public class Address {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id_address")
     private Long idAddress;
+
+    @Column(name = "contact_name", nullable = false)
+    private String contactName;
+
+    @Column(name = "contact_phone", nullable = false)
+    private String contactPhone;
 
     @Column(name = "street", nullable = false)
     private String street;
