@@ -19,9 +19,19 @@ public class Endpoints {
             "api/users/register",
             "api/users/login",
             "api/users/google-login",
-            "api/vnpay/create_payment"
+            "api/vnpay/create_payment",
+            "api/users/forgot-password",
+            "api/users/reset-password"
+    };
+    public static final String[] PUBLIC_PATCH = {
+    };
+
+    public static final String[] PUBLIC_PUT = {
+            "api/users/update-profile",
+            "api/users/change-password",
 
     };
+
     public static final String[] ADMIN_ENDPOINT = {
             "api/users/**",
             "api/books/admin/**",

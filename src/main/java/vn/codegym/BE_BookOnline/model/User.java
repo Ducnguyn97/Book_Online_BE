@@ -41,14 +41,25 @@ public class User {
     @Column(name = "avatar")
     private String avatar;
 
+    @Column(name = "reject_reason", columnDefinition = "TEXT", length = 500)
+    private String rejectReason;
+
+    private LocalDateTime lockedAt;
+
     @Builder.Default// thêm cái này để mặc định giá trị khi dùng builder
     @Column(name = "enabled", nullable = false)
     private boolean enabled = false;
 
     @Builder.Default
     private boolean emailVerified =false;
+
     private String verificationCode;
+
     private LocalDateTime expiredAt;
+
+    private String resetPasswordToken;
+
+    private LocalDateTime resetPasswordExpiredAt;
 
     @Enumerated(EnumType.STRING)
     @Column(name = "auth_provider")
@@ -70,4 +81,23 @@ public class User {
     @JoinTable(name = "user_roles", joinColumns = @JoinColumn(name = "id_user"), inverseJoinColumns = @JoinColumn(name = "id_role"))
     private List<Role> roles;
 
+    public void lockUser(String reason) {
+        if (!this.enabled) {
+            throw new IllegalStateException("User đã bị khóa rồi");
+        }
+        if (reason == null || reason.isBlank()) {
+            throw new IllegalArgumentException("Lý do khóa không được để trống");
+        }
+        this.rejectReason = reason;
+        this.enabled = false;
+        this.lockedAt = LocalDateTime.now();
+    }
+    public void unlockUser() {
+        if (this.enabled) {
+            throw new IllegalStateException("User chưa bị khóa");
+        }
+        this.rejectReason = null;
+        this.enabled = true;
+        this.lockedAt = null;
+    }
 }

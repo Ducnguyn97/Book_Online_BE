@@ -1,6 +1,7 @@
 package vn.codegym.BE_BookOnline.service.impl;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
@@ -15,6 +16,7 @@ import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
+@Slf4j
 //lay user  trong CSDL
 public class UserSecurityServiceImpl implements UserSecurityService {
 
@@ -37,8 +39,15 @@ public class UserSecurityServiceImpl implements UserSecurityService {
         }
         //ham lay role
         List<SimpleGrantedAuthority> authorities = user.getRoles().stream()
-                .map(role -> new SimpleGrantedAuthority(role.getNameRole()))
+                .map(role -> {
+                    String roleName = role.getNameRole();
+                    if(!roleName.startsWith("ROLE_")){
+                        roleName = "ROLE_" + roleName;
+                    }
+                    return new SimpleGrantedAuthority(roleName);
+                })
                 .collect(Collectors.toList());
+        log.info("User {} loaded with authorities: {}", email, authorities);
         // tra ve UserDetail chuaan trong spring
         return new org.springframework.security.core.userdetails.User(
                 user.getEmail(),
