@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8">
+  <title>Account Unlocked</title>
+  <style>
+    body { font-family: Arial, sans-serif; line-height: 1.6; color: #333; }
+    .container { max-width: 600px; margin: 0 auto; padding: 20px; }
+    .header {
+      background: #F08080;
+      color: white;
+      padding: 20px;
+      text-align: center;
+    }
+    .content {
+      padding: 20px;
+      background: #f8f9fa;
+    }
+    .footer {
+      padding: 20px;
+      text-align: center;
+      font-size: 12px;
+      color: #666;
+    }
+    .button {
+      background: #F08080;
+      color: white;
+      padding: 10px 20px;
+      text-decoration: none;
+      border-radius: 5px;
+      display: inline-block;
+      margin: 10px 0;
+    }
+    .info-box {
+      background: #fdf5f5;
+      padding: 15px;
+      border-left: 4px solid #F08080;
+      margin: 20px 0;
+    }
+  </style>
+</head>
+<body>
+<div class="container">
+  <div class="header">
+    <h1>🔓 Tài khoản đã được mở khóa</h1>
+    <h2>Chào mừng bạn trở lại</h2>
+  </div>
+
+  <div class="content">
+    <p>Kính chào <strong th:text="${fullName}">Username</strong>,</p>
+
+    <p>Chúng tôi vui mừng thông báo rằng tài khoản <strong th:text="${fullName}">Username</strong> của bạn đã được mở khóa.</p>
+
+    <div class="info-box">
+      <strong>✅ Tài khoản đã được kích hoạt lại</strong>
+      <p style="margin-top: 10px;">Bạn có thể đăng nhập và sử dụng đầy đủ các tính năng của nền tảng.</p>
+    </div>
+
+    <p><strong>Tài khoản của bạn hiện đã có thể:</strong></p>
+    <ul>
+      <li>Đăng nhập vào hệ thống</li>
+      <li>Xem sách và mua hàng</li>
+      <li>Thực hiện các giao dịch</li>
+    </ul>
+
+    <p>Vui lòng đăng nhập để tiếp tục sử dụng dịch vụ:</p>
+
+    <div style="text-align: center; margin: 30px 0;">
+      <a th:href="${loginUrl}" class="button">Đăng nhập ngay</a>
+    </div>
+
+    <div style="background: #fdf5f5; padding: 15px; border-radius: 5px; margin: 20px 0; border-left: 4px solid #F08080;">
+      <strong>💡 Lưu ý quan trọng:</strong>
+      <p style="margin: 5px 0 0 0;">Vui lòng tuân thủ các điều khoản và chính sách của nền tảng để tránh vi phạm trong tương lai.</p>
+    </div>
+
+    <p>Nếu bạn có bất kỳ câu hỏi nào, vui lòng liên hệ với chúng tôi qua email:
+      <a th:href="'mailto:' + ${supportEmail}" th:text="${supportEmail}" style="color: #F08080;">support@bookonline.com</a>
+    </p>
+  </div>
+
+  <div class="footer">
+    <p>
+      Email được gửi tự động từ
+      <span th:text="${appName}">App Name</span>
+      vào
+      <span th:text="${#temporals.format(currentDate, 'dd/MM/yyyy HH:mm')}">Date</span>
+    </p>
+
+    <p>
+      © <span th:text="${currentYear}">2024</span>
+      <span th:text="${appName}">App Name</span>.
+      All rights reserved.
+    </p>
+  </div>
+</div>
+</body>
+</html>

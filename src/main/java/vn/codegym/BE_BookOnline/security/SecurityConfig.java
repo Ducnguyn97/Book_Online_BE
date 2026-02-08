@@ -7,6 +7,7 @@ import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
+import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.config.http.SessionCreationPolicy;
@@ -19,6 +20,7 @@ import vn.codegym.BE_BookOnline.service.jwt.JwtFilter;
 
 @Configuration
 @RequiredArgsConstructor
+@EnableMethodSecurity
 public class SecurityConfig {
 
     private final JwtFilter jwtFilter;
@@ -60,10 +62,12 @@ public class SecurityConfig {
                 .authorizeHttpRequests(authorize -> authorize
                         .requestMatchers(HttpMethod.GET, Endpoints.PUBLIC_GET).permitAll()
                         .requestMatchers(HttpMethod.POST, Endpoints.PUBLIC_POST).permitAll()
-                        .requestMatchers(HttpMethod.GET, Endpoints.ADMIN_ENDPOINT).hasAuthority("ADMIN")
-                        .requestMatchers(HttpMethod.POST, Endpoints.ADMIN_ENDPOINT).hasAuthority("ADMIN")
-                        .requestMatchers(HttpMethod.PUT, Endpoints.ADMIN_ENDPOINT).hasAuthority("ADMIN")
-                        .requestMatchers(HttpMethod.DELETE, Endpoints.ADMIN_ENDPOINT).hasAuthority("ADMIN")
+                        .requestMatchers(HttpMethod.PUT, Endpoints.PUBLIC_PUT).permitAll()
+                        .requestMatchers(HttpMethod.PATCH, Endpoints.PUBLIC_PATCH).permitAll()
+                        .requestMatchers(HttpMethod.GET, Endpoints.ADMIN_ENDPOINT).hasRole("ADMIN")
+                        .requestMatchers(HttpMethod.POST, Endpoints.ADMIN_ENDPOINT).hasRole("ADMIN")
+                        .requestMatchers(HttpMethod.PUT, Endpoints.ADMIN_ENDPOINT).hasRole("ADMIN")
+                        .requestMatchers(HttpMethod.DELETE, Endpoints.ADMIN_ENDPOINT).hasRole("ADMIN")
                         .anyRequest().authenticated()
                 )
                 .httpBasic(AbstractHttpConfigurer::disable)

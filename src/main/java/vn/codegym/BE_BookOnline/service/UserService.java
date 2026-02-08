@@ -1,9 +1,6 @@
 package vn.codegym.BE_BookOnline.service;
 
-import vn.codegym.BE_BookOnline.dto.request.GoogleLoginRequest;
-import vn.codegym.BE_BookOnline.dto.request.UpdateUserRequest;
-import vn.codegym.BE_BookOnline.dto.request.UserLoginRequest;
-import vn.codegym.BE_BookOnline.dto.request.UserRegisterRequest;
+import vn.codegym.BE_BookOnline.dto.request.*;
 import vn.codegym.BE_BookOnline.dto.response.AuthResponse;
 import vn.codegym.BE_BookOnline.dto.response.UpdateUserResponse;
 import vn.codegym.BE_BookOnline.dto.response.UserProfile;
@@ -20,7 +17,9 @@ public interface UserService {
 
     UserProfile getUserProfile(String email);//get user profile
 
-    void lockUserAccount(String email);//lock user account
+    UserProfile lockUserAccount(Long UserId, LockUserRequest request);//lock user account
+
+    UserProfile unlockUserAccount(Long UserId, UnlockUserRequest request);//unlock user account
 
     void changeUserPassword(String email, String newPassword, String oldPassword);//update password
 
@@ -28,7 +27,7 @@ public interface UserService {
 
     void initiateForgotPassword(String email);//send email with token
 
-    void completeForgotUserPassword(String email, String newPassword, String token);//reset password using token
+    void completeForgotUserPassword( String newPassword, String token);//reset password using token
 
     User verifyAccount(String token);
 }

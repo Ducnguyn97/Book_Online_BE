@@ -14,10 +14,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import vn.codegym.BE_BookOnline.dto.request.GoogleLoginRequest;
-import vn.codegym.BE_BookOnline.dto.request.UpdateUserRequest;
-import vn.codegym.BE_BookOnline.dto.request.UserLoginRequest;
-import vn.codegym.BE_BookOnline.dto.request.UserRegisterRequest;
+import vn.codegym.BE_BookOnline.dto.request.*;
 import vn.codegym.BE_BookOnline.dto.response.AuthResponse;
 import vn.codegym.BE_BookOnline.dto.response.UpdateUserResponse;
 import vn.codegym.BE_BookOnline.dto.response.UserProfile;
@@ -38,6 +35,7 @@ import vn.codegym.BE_BookOnline.service.jwt.JwtService;
 import java.io.IOException;
 import java.security.GeneralSecurityException;
 import java.time.Instant;
+import java.time.LocalDateTime;
 import java.util.*;
 
 @Service
@@ -298,32 +296,107 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public UserProfile getUserProfile(String email) {
-        return null;
+        User user = userRepository.findByEmail(email)
+                .orElseThrow(() -> new ResourceNotFoundException("Không tìm thấy người dùng ..."));
+       return mapToUserProfile(user);
     }
 
     @Override
-    public void lockUserAccount(String email) {
+     public UserProfile lockUserAccount(Long userId, LockUserRequest request) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new ResourceNotFoundException("Không tìm thấy người dùng ..."));
+            user.lockUser(request.getReason());
+            emailService.sendAccountLockEmail(
+                    user.getEmail(),
+                    user.getFullName(),
+                    request.getReason());
+        userRepository.save(user);
+        return mapToUserProfile(user);
 
     }
+
+    public UserProfile mapToUserProfile(User user) {
+        String defaultAddress = user.getAddresses().stream()
+                .filter(Address::getIsDefault)
+                .map(Address::getStreet)
+                .findFirst()
+                .orElse(user.getAddresses().isEmpty() ? null : user.getAddresses().get(0).getStreet());
+        return UserProfile.builder()
+                .id(user.getId())
+                .email(user.getEmail())
+                .fullName(user.getFullName())
+                .phoneNumber(user.getPhoneNumber())
+                .address(defaultAddress)
+                .gender(user.getGender())
+                .build();
+    }
+
+
+    @Override
+    public UserProfile unlockUserAccount(Long UserId, UnlockUserRequest request) {
+        User user = userRepository.findById(UserId)
+                .orElseThrow(() -> new ResourceNotFoundException("Không tìm thấy người dùng ..."));
+        user.unlockUser();
+        emailService.sendAccountUnlockEmail(
+                user.getEmail(),
+                user.getFullName()
+        );
+        userRepository.save(user);
+        return mapToUserProfile(user);
+    }
+
 
     @Override
     public void changeUserPassword(String email, String newPassword, String oldPassword) {
-
+        User user = userRepository.findByEmail(email)
+                .orElseThrow(()-> new ResourceNotFoundException("Không tìm thấy người dùng ..."));
+        if(!passwordEncoder.matches(oldPassword, user.getPassword())) {
+            throw new InvalidCredentialsException("Mật khẩu cũ không đúng vui lòng nhập lại.");
+        }
+        user.setPassword(passwordEncoder.encode(newPassword));
+        userRepository.save(user);
     }
 
     @Override
     public void changeUserAvatar(String email, String avatarUrl) {
-
+        User user = userRepository.findByEmail(email)
+                .orElseThrow(()-> new ResourceNotFoundException("Không tìm thấy người dùng ..."));
+        user.setAvatar(avatarUrl);
+        userRepository.save(user);
     }
 
     @Override
+    @Transactional
     public void initiateForgotPassword(String email) {
-
+        User user = userRepository.findByEmail(email)
+                .orElseThrow(() -> new ResourceNotFoundException("Không tìm thấy người dùng ..."));
+        String token= UUID.randomUUID().toString();
+        user.setResetPasswordToken(token);
+        user.setResetPasswordExpiredAt(LocalDateTime.now().plusMinutes(15)); // token hợp lệ trong 15 phút
+        userRepository.save(user);
+        emailService.sendForgotPasswordEmail(
+                user.getEmail(),
+                user.getFullName(),
+                token
+        );
     }
 
     @Override
-    public void completeForgotUserPassword(String email, String newPassword, String token) {
-
+    @Transactional
+    public void completeForgotUserPassword( String newPassword, String token) {
+        User user = userRepository.findByResetPasswordToken(token)
+                .orElseThrow(() -> new ResourceNotFoundException("Không tìm thấy nguời dùng ..."));
+        // kiem tra token
+        if(user.getResetPasswordToken() == null || !user.getResetPasswordToken().equals(token)){
+            throw new InvalidCredentialsException("Token không hợp lệ hoặc không tồn tại. ");
+        }// kiem tra token het han
+        if(user.getResetPasswordExpiredAt() == null || user.getResetPasswordExpiredAt().isBefore(LocalDateTime.now()) ){
+            throw new InvalidCredentialsException("Token đã hết hạn. Vui lòng thực hiện lại quy trình quên mật khẩu. ");
+        }
+        user.setPassword(passwordEncoder.encode(newPassword));
+        user.setResetPasswordToken(null);
+        user.setResetPasswordExpiredAt(null);
+        userRepository.save(user);
     }
 
     @Override
