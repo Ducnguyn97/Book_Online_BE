@@ -7,6 +7,7 @@ import org.springframework.security.authentication.DisabledException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
+import org.springframework.web.server.ResponseStatusException;
 import vn.codegym.BE_BookOnline.dto.response.ErrorResponse;
 
 import java.time.LocalDateTime;
@@ -124,6 +125,18 @@ public class GlobalExceptionHandler {
                 securityException.getMessage(),
                 LocalDateTime.now());
         return new ResponseEntity<>(errorResponse, HttpStatus.FORBIDDEN);
+    }
+    @ExceptionHandler(ResponseStatusException.class)
+    public ResponseEntity<ErrorResponse> handleResponseStatusException(ResponseStatusException ex) {
+        var statusCode = ex.getStatusCode();
+        int status = statusCode.value();// HttpStatusCode
+        ErrorResponse error = new ErrorResponse(
+                status,
+                (statusCode instanceof HttpStatus hs) ? hs.getReasonPhrase() : "Error",
+                ex.getReason(),
+                LocalDateTime.now());
+
+        return ResponseEntity.status(statusCode).body(error);
     }
 
 }
