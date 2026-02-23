@@ -10,7 +10,7 @@ import java.util.List;
 
 @Data
 public class UserRegisterRequest {
-    private String userName;
+    private String username;
 
     @NotBlank(message = "Email không được bỏ trống.")
     @Email(message = "Email không hợp lệ.")

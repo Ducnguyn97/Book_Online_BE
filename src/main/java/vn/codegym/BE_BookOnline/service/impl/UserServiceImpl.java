@@ -7,6 +7,8 @@ import com.google.api.client.json.gson.GsonFactory;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -16,6 +18,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import vn.codegym.BE_BookOnline.dto.request.*;
 import vn.codegym.BE_BookOnline.dto.response.AuthResponse;
+import vn.codegym.BE_BookOnline.dto.response.CustomerListResponse;
 import vn.codegym.BE_BookOnline.dto.response.UpdateUserResponse;
 import vn.codegym.BE_BookOnline.dto.response.UserProfile;
 import vn.codegym.BE_BookOnline.exception.EmailNotVerifiedException;
@@ -34,7 +37,6 @@ import vn.codegym.BE_BookOnline.service.jwt.JwtService;
 
 import java.io.IOException;
 import java.security.GeneralSecurityException;
-import java.time.Instant;
 import java.time.LocalDateTime;
 import java.util.*;
 
@@ -67,7 +69,7 @@ public class UserServiceImpl implements UserService {
             throw new EmailNotVerifiedException("Email đã được đăng ký vui lòng sử dụng email khác.");
         }
 
-        if(userRepository.existsByUsername(request.getUserName())){
+        if(userRepository.existsByUsername(request.getUsername())){
             throw new UserAlreadyExistsException("Tên người dùng đã được sử dụng vui lòng sử dụng tên khác.");
         }
 
@@ -83,7 +85,7 @@ public class UserServiceImpl implements UserService {
 
         User newUser = User.builder()
                 .email(request.getEmail())
-                .username(request.getUserName())
+                .username(request.getUsername())
                 .password(passwordEncoder.encode(request.getPassword()))
                 .roles(request.getRoles())
                 .enabled(false)
@@ -273,6 +275,9 @@ public class UserServiceImpl implements UserService {
 
     // logic: tim hoac tao dia chi mac dinh cho user neu chua co
     private void updateDefaultAddressForUser(User user, UpdateUserRequest request) {
+        if (user.getAddresses() == null) {//dam bao address luôn là list rỗng
+            user.setAddresses(new ArrayList<>());
+        }
         Address addressToUpdate = user.getAddresses().stream()
                 .filter(Address::getIsDefault)
                 .findFirst()
@@ -280,9 +285,6 @@ public class UserServiceImpl implements UserService {
                     Address newAddress = new Address();
                     newAddress.setUser(user);
                     newAddress.setIsDefault(true);
-                    if(user.getAddresses() == null) {
-                        user.setAddresses(new ArrayList<>());
-                    }
                     user.getAddresses().add(newAddress);
                     return newAddress;
                 });
@@ -316,15 +318,20 @@ public class UserServiceImpl implements UserService {
     }
 
     public UserProfile mapToUserProfile(User user) {
-        String defaultAddress = user.getAddresses().stream()
-                .filter(Address::getIsDefault)
-                .map(Address::getStreet)
-                .findFirst()
-                .orElse(user.getAddresses().isEmpty() ? null : user.getAddresses().get(0).getStreet());
+        String defaultAddress = null;
+        if (user.getAddresses() != null && !user.getAddresses().isEmpty()) {
+            defaultAddress = user.getAddresses().stream()
+                    .filter(Address::getIsDefault)
+                    .map(Address::getStreet)
+                    .findFirst()
+                    .orElse(user.getAddresses().get(0).getStreet());
+        }
         return UserProfile.builder()
                 .id(user.getId())
+                .username(user.getUsername())
                 .email(user.getEmail())
                 .fullName(user.getFullName())
+                .avatarUrl(user.getAvatar())
                 .phoneNumber(user.getPhoneNumber())
                 .address(defaultAddress)
                 .gender(user.getGender())
@@ -416,5 +423,34 @@ public class UserServiceImpl implements UserService {
         userRepository.save(user);
 
         return user;
+    }
+
+    @Override
+    public Page<CustomerListResponse> getAllCustomers(Pageable pageable) {
+        return userRepository.findAllByRoles_NameRole("CUSTOMER", pageable)
+                .map(this::mapToCustomerListResponse);
+    }
+    private CustomerListResponse mapToCustomerListResponse(User user) {
+        String defaultAddress = null;
+        if (user.getAddresses() != null && !user.getAddresses().isEmpty()) {
+            defaultAddress = user.getAddresses().stream()
+                    .filter(Address::getIsDefault)
+                    .map(Address::getStreet)
+                    .findFirst()
+                    .orElse(user.getAddresses().get(0).getStreet());
+        }
+        return CustomerListResponse.builder()
+                .id(user.getId())
+                .username(user.getUsername())
+                .email(user.getEmail())
+                .fullName(user.getFullName())
+                .avatarUrl(user.getAvatar())
+                .phoneNumber(user.getPhoneNumber())
+                .gender(user.getGender())
+                .RejectReason(user.getRejectReason())
+                .enabled(user.isEnabled())
+                .lockedAt(user.getLockedAt())
+                .address(defaultAddress)
+                .build();
     }
 }

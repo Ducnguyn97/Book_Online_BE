@@ -21,6 +21,7 @@ public class UserController {
 
     private final UserService userService;
 
+
     @PostMapping("/register")
     public ResponseEntity<?> register(@Valid @RequestBody UserRegisterRequest request){
             userService.registerUser(request);
@@ -43,23 +44,18 @@ public class UserController {
         AuthResponse response = userService.loginWithGoogle(request);
         return ResponseEntity.ok(response);
     }
+    @GetMapping("/profile")
+    public ResponseEntity<UserProfile> getProfile(){
+        String email = getEmailFromAuthContext();
+        UserProfile response = userService.getUserProfile(email);
+        return ResponseEntity.ok(response);
+    }
     @PutMapping("/update-profile")
     public ResponseEntity<UpdateUserResponse> updateProfile(@Valid @RequestBody UpdateUserRequest request){
         String email = getEmailFromAuthContext();
         UpdateUserResponse response = userService.updateUser(email, request);
         return ResponseEntity.ok(response);
     }
-    @PutMapping("/{userId}/lock")
-    public ResponseEntity<UserProfile> lockUserAccount(@PathVariable Long userId, @Valid @RequestBody LockUserRequest request) {
-        UserProfile response = userService.lockUserAccount(userId, request);
-        return ResponseEntity.ok(response);
-    }
-    @PutMapping("/{userId}/unlock")
-    public ResponseEntity<UserProfile> unlockUserAccount(@PathVariable Long userId, @Valid @RequestBody UnlockUserRequest request) {
-        UserProfile response = userService.unlockUserAccount(userId, request);
-        return ResponseEntity.ok(response);
-    }
-
      @PutMapping("/change-password")
      public ResponseEntity<?> changePassword(@Valid @RequestBody ChangePasswordRequest request) {
          String email = getEmailFromAuthContext();

@@ -1,27 +1,27 @@
 package vn.codegym.BE_BookOnline.dto.response;
 
+import jakarta.validation.constraints.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import vn.codegym.BE_BookOnline.model.Genre;
 import vn.codegym.BE_BookOnline.model.Image;
 
 import java.math.BigDecimal;
 import java.util.List;
 
 @Data
-@NoArgsConstructor
 @AllArgsConstructor
+@NoArgsConstructor
 @Builder
-public class BookResponse {
-    private Long id;
+public class StaffBookResponse {
     private String name;
     private String author;
     private String description;
-    private List<String> imagesUrls;
     private BigDecimal price;
     private List<String> genres;
-
-
+    private List<String> imagesUrls;
+    private String isbn;
+    private int quantity;
+    private String publisher;
 }

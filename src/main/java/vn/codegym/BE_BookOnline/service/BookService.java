@@ -2,7 +2,7 @@ package vn.codegym.BE_BookOnline.service;
 
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
-import vn.codegym.BE_BookOnline.dto.request.BookRequest;
+import vn.codegym.BE_BookOnline.dto.request.BookCreateRequest;
 import vn.codegym.BE_BookOnline.dto.response.BookDetailsResponse;
 import vn.codegym.BE_BookOnline.dto.response.BookResponse;
 
@@ -10,21 +10,28 @@ import java.math.BigDecimal;
 import java.util.List;
 
 public interface BookService {
-    BookResponse createBook(BookRequest request, String email);
+    BookResponse createBook(BookCreateRequest request, String email);
 
-    BookResponse updateBook(Long bookId, BookRequest request, String email);
+    BookResponse updateBook(Long bookId, BookCreateRequest request, String email);
 
     void deleteBook(Long bookId, String email);
 
     BookDetailsResponse getBookDetails(Long bookId);
 
-    List<BookResponse> getAllBookByAuthor(String authorName);
+    Page<BookResponse> getAllBookByAuthor(String authorName, Pageable pageable);
 
     List<BookResponse> getAllBookByISBN(String isbn);
 
-    List<BookResponse> getTopSuggestedBooks();
+    List<BookResponse> getNewBookOnShelves();
 
-    List<BookResponse> getTop8MostDiscountedBooks();
+    List<BookResponse> getBestsellingBooks();
 
-    Page<BookResponse> searchBooks(Long BookId, String genre, String author, BigDecimal minPice, BigDecimal maxPrice, String title, Pageable pageable);
+    // Đổi signature: nhận page, size thay vì Pageable
+    Page<BookResponse> searchBooks(String keyword, String genre, String author,
+                                   BigDecimal minPrice, BigDecimal maxPrice,
+                                   int page, int size);
+
+    List<BookResponse> getRelatedBooks(Long bookId);
+
+    List<String> getAllGenres();
 }

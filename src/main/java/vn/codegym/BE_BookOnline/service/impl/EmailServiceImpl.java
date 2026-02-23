@@ -44,7 +44,7 @@ public class EmailServiceImpl implements EmailService {
             context.setVariable("recipientName", recipientName != null? recipientName: email);
             // link kích hoạt trỏ về backend endpoint "http://localhost:8080/api/auth/activate?token=" + token;
             // link kích hoạt trỏ về frontend endpoint "http://localhost:5173/login?token=" + token;
-            String verificationLink = "http://localhost:8080/api/users/activate?token=" + token;
+            String verificationLink = "http://localhost:5173/login?token=" + token;;
             context.setVariable("verificationLink", verificationLink);
             context.setVariable("appName", appName); // Sử dụng biến appName nếu có
             context.setVariable("currentYear", Year.now().getValue()); // Sử dụng biến Year
@@ -118,7 +118,7 @@ public class EmailServiceImpl implements EmailService {
             context.setVariable("fullName", fullName != null? fullName: email);
             // link đặt lại mật khẩu trỏ về backend endpoint "http://localhost:8080/api/auth/reset-password?token=" + token;
             // link đặt lại mật khẩu trỏ về frontend endpoint "http://localhost:5173/reset-password?token=" + token;
-            String resetPasswordLink = "http://localhost:8080/api/users/reset-password?token=" + token;
+            String resetPasswordLink = "http://localhost:5173/users/reset-password?token=" + token;
             context.setVariable("resetPasswordLink", resetPasswordLink);
             context.setVariable("appName", appName); // Sử dụng biến appName nếu có
             context.setVariable("currentYear", Year.now().getValue()); // Sử dụng biến Year
