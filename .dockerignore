@@ -1,0 +1,34 @@
+# Git
+.git
+.gitignore
+
+# Env (không copy vào image)
+.env
+.env.*
+
+# Maven build output (sẽ build trong container)
+target/
+
+# IDE
+.idea/
+.vscode/
+*.iml
+*.iws
+*.ipr
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+logs/
+
+# Docker files (không cần thiết trong image)
+Dockerfile
+docker-compose.yml
+docker-compose.override.yml
+
+# Docs
+README.md
+HELP.md
