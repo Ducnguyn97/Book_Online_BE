@@ -1,11 +1,9 @@
 package vn.codegym.BE_BookOnline.dto.response;
 
-import jakarta.validation.constraints.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import vn.codegym.BE_BookOnline.model.Image;
 
 import java.math.BigDecimal;
 import java.util.List;
@@ -15,6 +13,7 @@ import java.util.List;
 @NoArgsConstructor
 @Builder
 public class StaffBookResponse {
+    private Long id;
     private String name;
     private String author;
     private String description;

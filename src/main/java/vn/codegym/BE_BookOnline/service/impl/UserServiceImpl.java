@@ -269,7 +269,7 @@ public class UserServiceImpl implements UserService {
                 .street(request.getStreet())
                 .provinceId(request.getProvinceId())
                 .districtId(request.getDistrictId())
-                .wardcode(request.getWardcode())
+                .wardCode(request.getWardCode())
                 .build();
     }
 
@@ -291,9 +291,15 @@ public class UserServiceImpl implements UserService {
         addressToUpdate.setStreet(request.getStreet());
         addressToUpdate.setContactName(request.getFullName());
         addressToUpdate.setContactPhone(request.getPhoneNumber());
-        addressToUpdate.setProvinceId(request.getProvinceId());
-        addressToUpdate.setDistrictId(request.getDistrictId());
-        addressToUpdate.setWardCode(request.getWardcode());
+        if (request.getProvinceId() != null) {
+            addressToUpdate.setProvinceId(request.getProvinceId());
+        }
+        if (request.getDistrictId() != null) {
+            addressToUpdate.setDistrictId(request.getDistrictId());
+        }
+        if (request.getWardCode() != null) {
+            addressToUpdate.setWardCode(request.getWardCode());
+        }
     }
 
     @Override

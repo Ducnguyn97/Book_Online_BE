@@ -5,14 +5,15 @@ import org.springframework.data.domain.Pageable;
 import vn.codegym.BE_BookOnline.dto.request.BookCreateRequest;
 import vn.codegym.BE_BookOnline.dto.response.BookDetailsResponse;
 import vn.codegym.BE_BookOnline.dto.response.BookResponse;
+import vn.codegym.BE_BookOnline.dto.response.StaffBookResponse;
 
 import java.math.BigDecimal;
 import java.util.List;
 
 public interface BookService {
-    BookResponse createBook(BookCreateRequest request, String email);
+    StaffBookResponse createBook(BookCreateRequest request, String email);
 
-    BookResponse updateBook(Long bookId, BookCreateRequest request, String email);
+    StaffBookResponse updateBook(Long bookId, BookCreateRequest request, String email);
 
     void deleteBook(Long bookId, String email);
 
@@ -20,7 +21,7 @@ public interface BookService {
 
     Page<BookResponse> getAllBookByAuthor(String authorName, Pageable pageable);
 
-    List<BookResponse> getAllBookByISBN(String isbn);
+    Page<BookResponse> getAllBookByISBN(String isbn, Pageable pageable);
 
     List<BookResponse> getNewBookOnShelves();
 
@@ -33,5 +34,4 @@ public interface BookService {
 
     List<BookResponse> getRelatedBooks(Long bookId);
 
-    List<String> getAllGenres();
 }

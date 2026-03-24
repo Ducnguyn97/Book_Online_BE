@@ -1,15 +1,12 @@
 package vn.codegym.BE_BookOnline.controller;
 
-import jakarta.validation.Valid;
 import jakarta.validation.constraints.DecimalMin;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
-import vn.codegym.BE_BookOnline.dto.request.BookCreateRequest;
 import vn.codegym.BE_BookOnline.dto.response.BookDetailsResponse;
 import vn.codegym.BE_BookOnline.dto.response.BookResponse;
 import vn.codegym.BE_BookOnline.service.BookService;
@@ -55,11 +52,7 @@ public class BookController {
         List<BookResponse> newBooksOnShelves = bookService.getNewBookOnShelves();
         return ResponseEntity.ok(newBooksOnShelves);
     }
-    @GetMapping("/genres")
-    public ResponseEntity<List<String>> getAllGenres() {
-        List<String> genres = bookService.getAllGenres();
-        return ResponseEntity.ok(genres);
-    }
+
     @GetMapping("/authors")
     public ResponseEntity<Page<BookResponse>> getAllBookByAuthor(@RequestParam String authorName,
                                                               @RequestParam(defaultValue = "0") int page,
@@ -68,9 +61,12 @@ public class BookController {
         Page<BookResponse> booksByAuthor = bookService.getAllBookByAuthor(authorName,pageable);
         return ResponseEntity.ok(booksByAuthor);
     }
-    @GetMapping("/isbn/{isbn}")
-    public ResponseEntity<List<BookResponse>> getAllBookByISBN(@PathVariable String isbn) {
-        List<BookResponse> booksByISBN = bookService.getAllBookByISBN(isbn);
+    @GetMapping("/isbn")
+    public ResponseEntity<Page<BookResponse>> getAllBookByISBN(@RequestParam String isbn,
+                                                               @RequestParam(defaultValue = "0") int page,
+                                                               @RequestParam(defaultValue = "10") int size) {
+        Pageable pageable = PageRequest.of(page, size);
+        Page<BookResponse> booksByISBN = bookService.getAllBookByISBN(isbn, pageable);
         return ResponseEntity.ok(booksByISBN);
     }
 

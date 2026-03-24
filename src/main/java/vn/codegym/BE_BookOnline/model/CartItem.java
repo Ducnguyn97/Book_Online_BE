@@ -1,9 +1,7 @@
 package vn.codegym.BE_BookOnline.model;
 
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 import java.math.BigDecimal;
 
@@ -12,6 +10,8 @@ import java.math.BigDecimal;
 @AllArgsConstructor
 @Data
 @Table(name = "cart_items")
+@ToString(exclude = {"book", "cart"})
+@Builder
 public class CartItem {//giỏ hàng chi tiết
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

@@ -36,13 +36,25 @@ public class Address {
     private Integer districtId; // ID Quận/Huyện từ GHN
 
     @Column(name = "ward_code")// Mã Phường/Xã từ GHN
-    private String wardCode;
+    private Integer wardCode;
+    @Column(name = "province_name")
+    private String provinceName; // Tên Tỉnh/Thành phố
+    @Column(name = "district_name")
+    private String districtName; // Tên Quận/Huyện
+    @Column(name = "ward_name")
+    private String wardName; // Tên Phường/Xã
 
     @Column(name = "building")
     private String building;
 
+    @Column(name = "full_address")
+    private String fullAddress; // Địa chỉ đầy đủ (ghép tất cả)
+
     @Column(name = "is_default", nullable = false)
     private Boolean isDefault;
+
+    @Column(name = "is_deleted", nullable = false)
+    private boolean isDeleted = false;// softer delete
 
     @ManyToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL, optional = false)
     @JoinColumn(name = "id_user", nullable = false, foreignKey = @ForeignKey(name = "fk_address_user"))

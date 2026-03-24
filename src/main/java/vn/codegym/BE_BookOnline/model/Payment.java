@@ -3,7 +3,7 @@ import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-
+import java.math.BigDecimal;
 import java.util.List;
 
 @Entity
@@ -21,7 +21,9 @@ public class Payment {
     @Column(name = "description_payment")
     private String descriptionPayment;//mo ta
     @Column(name = "fee_payment", nullable = false)
-    private double feePayment;//
-    @OneToMany(mappedBy = "payment", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    private BigDecimal feePayment;//
+    @Column(name = "active", nullable = false)
+    private boolean active = true;//trang thai kich hoat
+    @OneToMany(mappedBy = "payment", fetch = FetchType.LAZY)
     private List<Order> orders;//ds don hang su dung hinh thuc thanh toan nay
 }

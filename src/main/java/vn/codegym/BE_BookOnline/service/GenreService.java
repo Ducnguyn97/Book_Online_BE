@@ -7,9 +7,9 @@ import vn.codegym.BE_BookOnline.model.Genre;
 import java.util.List;
 
 public interface GenreService {
-    List<Genre> findAllGenres();
+    List<GenreResponse> findAllGenres();
 
-    List<Genre> findGenresWithBook();
+    List<GenreResponse> findGenresWithBook(Long bookId);
 
     GenreResponse createGenre(String email, GenreCreateRequest request);
 
