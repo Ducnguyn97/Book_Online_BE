@@ -2,12 +2,19 @@ package vn.codegym.BE_BookOnline.model;
 
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.hibernate.annotations.SQLDelete;
 import org.hibernate.annotations.SQLRestriction;
+import org.springframework.data.annotation.CreatedBy;
+import org.springframework.data.annotation.CreatedDate;
+import org.springframework.data.annotation.LastModifiedBy;
+import org.springframework.data.annotation.LastModifiedDate;
+import vn.codegym.BE_BookOnline.converter.StringListConverter;
 
 import java.math.BigDecimal;
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Entity
@@ -17,6 +24,7 @@ import java.util.List;
 @Table(name = "books")
 @SQLDelete(sql = "UPDATE books SET is_deleted = true WHERE id_book = ?")
 @SQLRestriction("is_deleted = false")
+@Builder
 public class Book {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -54,7 +62,20 @@ public class Book {
     private Integer soldQuantityBook;//so luong da ban
 
     @Column(name = "discount_percent_book", nullable = false)
-    private Double discountPercentBook;//phan tram giam gia
+    private Double discountPercentBook;//phan tram giam
+
+    @Column(name = "date_created")
+    @CreatedDate
+    private LocalDateTime dateCreated;
+
+    @LastModifiedBy
+    private String lastModifiedBy;
+
+    @CreatedBy
+    private String createdBy;
+
+    @LastModifiedDate
+    private LocalDateTime lastModifiedDate;
 
     @Column(name = "is_deleted")
     private Boolean isDeleted = false; // Mặc định là false (chưa xóa)
@@ -66,8 +87,9 @@ public class Book {
             inverseJoinColumns = @JoinColumn(name = "id_type_book"))
     private List<Genre> typeBooks;//loai sach
 
-    @OneToMany(mappedBy = "book", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
-    private List<Image> imageBook;//anh sach
+    @Column(name = "image_urls", columnDefinition = "JSON")
+    @Convert(converter = StringListConverter.class)
+    private List<String> imageUrls;//anh sach (JSON array of URLs)
 
     @OneToMany(mappedBy = "book", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private List<CartItem> cartItems;//chi tiet gio hang

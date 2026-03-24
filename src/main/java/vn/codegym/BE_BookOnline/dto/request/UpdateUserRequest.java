@@ -20,7 +20,7 @@ public class UpdateUserRequest {
     private String username;
 
     private String street;
-    private String wardcode;
+    private Integer wardCode;
     private Integer districtId;
     private Integer provinceId;
 }

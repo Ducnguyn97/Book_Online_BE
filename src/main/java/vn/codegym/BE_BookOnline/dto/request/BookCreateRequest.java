@@ -5,7 +5,6 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-
 import java.math.BigDecimal;
 import java.util.List;
 
@@ -32,7 +31,7 @@ public class BookCreateRequest {
     private BigDecimal price;
 
     @NotEmpty(message = "Cần chọn ít nhất một thể loại cho sách")
-    private List<String> genres;
+    private List<Long> genreIds;
 
     private List<String> imageUrls;
 

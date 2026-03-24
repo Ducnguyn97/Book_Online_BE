@@ -11,9 +11,9 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 public class GenreCreateRequest {
+    private Long id;
+
     @NotBlank(message = "Tên thể loại sách không được để trống .")
     @Size(max = 50, message = "Tên thể loại sách không được vượt quá 50 ký tự.")
     private String name;
-    @Size(max = 500, message = "Mô tả không được vượt quá 500 ký tự.")
-    private String description;
 }

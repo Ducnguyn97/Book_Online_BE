@@ -17,7 +17,7 @@ public class UpdateUserResponse {
 
     private String street;
 
-    private String wardcode;
+    private Integer wardCode;
 
     private Integer districtId;
 
