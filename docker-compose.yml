@@ -27,19 +27,19 @@ services:
   # Spring Boot Backend
   # ==========================================
   backend:
-    build:
-      context: .
-      dockerfile: Dockerfile
+    image: maven:3.9.6-eclipse-temurin-21
     container_name: bookonline_backend
-    restart: unless-stopped
+    working_dir: /app
+    volumes:
+      - .:/app
+    command: mvn spring-boot:run
+    ports:
+      - "${SERVER_PORT:-8080}:8080"
     env_file:
       - .env
     environment:
-      # Override DB_HOST trỏ sang container mysql
       DB_HOST: mysql
       DB_PORT: 3306
-    ports:
-      - "${SERVER_PORT:-8080}:8080"
     depends_on:
       mysql:
         condition: service_healthy
