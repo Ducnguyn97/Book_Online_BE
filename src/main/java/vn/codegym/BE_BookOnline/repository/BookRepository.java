@@ -76,7 +76,7 @@ public interface BookRepository extends JpaRepository<Book, Long> {
     """, nativeQuery = true)
     List<Book> findNewBooksOnShelves(@Param("limit") int limit);
 
-
+//like concat('%',:keyword,'%') lay tat ca cac ky tu co trong keyword
     @Query("""
         SELECT b FROM Book b
         WHERE LOWER(b.authorBook) LIKE LOWER(CONCAT('%', :authorName, '%'))

@@ -1,10 +1,37 @@
+#=======================================================
+# Maven
+#=======================================================
 HELP.md
 target/
 .mvn/wrapper/maven-wrapper.jar
 !**/src/main/**/target/
 !**/src/test/**/target/
+#=======================================================
+# Sensitive files
+#=======================================================
+.env
+.env.*
+!.env.example
+src/main/resources/application.properties
+src/main/resources/application.yml
+src/main/resources/application-*.properties
+src/main/resources/application-*.yml
+#=======================================================
+#template files
+!src/main/resources/application.properties.example
+!src/main/resources/application.yml.
 
-### STS ###
+#=======================================================
+# IDEs and Editors
+#=======================================================
+.idea/
+*.iws
+*.iml
+*.ipr
+out/
+# ==========================================
+# IDE - Eclipse / STS
+# ==========================================
 .apt_generated
 .classpath
 .factorypath
@@ -13,13 +40,9 @@ target/
 .springBeans
 .sts4-cache
 
-### IntelliJ IDEA ###
-.idea
-*.iws
-*.iml
-*.ipr
-
-### NetBeans ###
+# ==========================================
+# IDE - NetBeans
+# ==========================================
 /nbproject/private/
 /nbbuild/
 /dist/
@@ -29,5 +52,61 @@ build/
 !**/src/main/**/build/
 !**/src/test/**/build/
 
-### VS Code ###
+# ==========================================
+# IDE - VS Code
+# ==========================================
 .vscode/
+
+# ==========================================
+# HỆ ĐIỀU HÀNH
+# ==========================================
+
+# macOS
+.DS_Store
+.AppleDouble
+.LSOverride
+._*
+
+# Windows
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+$RECYCLE.BIN/
+
+# Linux
+*~
+
+# ==========================================
+# LOG & RUNTIME
+# ==========================================
+*.log
+logs/
+log/
+*.pid
+*.pid.lock
+spring.log
+
+# ==========================================
+# TEST & COVERAGE
+# ==========================================
+/test-results/
+/coverage/
+*.exec
+jacoco.exec
+jacoco/
+
+# ==========================================
+# DOCKER (nếu dùng)
+# ==========================================
+.docker/
+docker-compose.override.yml
+
+# ==========================================
+# CERTIFICATE & KEY
+# ==========================================
+*.pem
+*.key
+*.p12
+*.jks
+*.keystore
+*.truststore
