@@ -10,6 +10,7 @@ import org.springframework.web.bind.annotation.*;
 import vn.codegym.BE_BookOnline.dto.request.BookCreateRequest;
 import vn.codegym.BE_BookOnline.dto.request.GenreCreateRequest;
 import vn.codegym.BE_BookOnline.dto.response.BookResponse;
+import vn.codegym.BE_BookOnline.dto.response.BookResponseStaff;
 import vn.codegym.BE_BookOnline.dto.response.GenreResponse;
 import vn.codegym.BE_BookOnline.dto.response.StaffBookResponse;
 import vn.codegym.BE_BookOnline.service.BookService;
@@ -60,10 +61,23 @@ public class StaffController {
         return ResponseEntity.ok(response);
     }
     @GetMapping("/books")
-    public ResponseEntity<Page<BookResponse>> getAllBooks(@RequestParam(defaultValue = "0") int page,
-                                                          @RequestParam(defaultValue = "10") int size) {
-        Page<BookResponse> books = staffService.getAllBooksForStaff(page, size);
+    public ResponseEntity<Page<BookResponseStaff>> getAllBooks(@RequestParam(defaultValue = "0") int page,
+                                                               @RequestParam(defaultValue = "10") int size) {
+        Page<BookResponseStaff> books = staffService.getAllBooksForStaff(page, size);
         return ResponseEntity.ok(books);
+    }
+    @GetMapping("/books/{bookId}")
+    public ResponseEntity<BookResponseStaff> getBookById(@PathVariable Long bookId) {
+        BookResponseStaff book = staffService.getBookByIdForStaff(bookId);
+        return ResponseEntity.ok(book);
+    }
+    @PatchMapping("/books/{bookId}/status")
+    public ResponseEntity<BookResponseStaff> updateBookStatus(Authentication authentication,
+                                                              @PathVariable Long bookId,
+                                                              @RequestParam boolean active) {
+        String email = authentication.getName();
+        BookResponseStaff updatedBook = staffService.updateBookStatus(email, bookId, active);
+        return ResponseEntity.ok(updatedBook);
     }
 
 }

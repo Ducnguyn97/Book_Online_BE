@@ -12,6 +12,7 @@ import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.LastModifiedBy;
 import org.springframework.data.annotation.LastModifiedDate;
 import vn.codegym.BE_BookOnline.converter.StringListConverter;
+import vn.codegym.BE_BookOnline.model.Enum.BookStatus;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
@@ -79,6 +80,10 @@ public class Book {
 
     @Column(name = "is_deleted")
     private Boolean isDeleted = false; // Mặc định là false (chưa xóa)
+
+    @Enumerated(EnumType.STRING)
+    @Column(name = "status_book")
+    private BookStatus statusBook = BookStatus.INACTIVE;
 
     @ManyToMany(fetch = FetchType.LAZY, cascade = {CascadeType.PERSIST, CascadeType.MERGE, CascadeType.DETACH, CascadeType.REFRESH})
     @JoinTable(
