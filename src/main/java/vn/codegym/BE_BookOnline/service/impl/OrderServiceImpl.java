@@ -400,6 +400,11 @@ public class OrderServiceImpl implements OrderService {
         return mapToOrderResponse(savedOrder);
     }
 
+    @Override
+    public OrderResponse UpdateOrderStatusByStaff(String email, Long orderId, String status) {
+        return null;
+    }
+
     private OrderResponse mapToOrderResponse(Order order) {
         List<OrderItemResponse> items = order.getOrderDetails().stream()
                 .map(item -> OrderItemResponse.builder()

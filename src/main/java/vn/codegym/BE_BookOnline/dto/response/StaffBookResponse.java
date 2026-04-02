@@ -4,8 +4,10 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import vn.codegym.BE_BookOnline.model.Enum.BookStatus;
 
 import java.math.BigDecimal;
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Data
@@ -23,4 +25,9 @@ public class StaffBookResponse {
     private String isbn;
     private int quantity;
     private String publisher;
+    private Double discountBook;
+    private Double averageRating;
+    private BookStatus bookStatus;
+    private LocalDateTime createdAt;
+    private String createdBy;
 }

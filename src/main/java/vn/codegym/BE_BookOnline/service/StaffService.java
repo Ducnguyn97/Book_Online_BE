@@ -1,12 +1,14 @@
 package vn.codegym.BE_BookOnline.service;
 
 import org.springframework.data.domain.Page;
-import vn.codegym.BE_BookOnline.dto.response.BookResponseStaff;
+import vn.codegym.BE_BookOnline.dto.response.StaffBookResponse;
 
 public interface StaffService {
-    Page<BookResponseStaff> getAllBooksForStaff(int page, int size);
+    Page<StaffBookResponse> getAllBooksForStaff(String email, String keyword, String status, int page, int size);
 
-    BookResponseStaff getBookByIdForStaff(Long bookId);
+    StaffBookResponse getBookByIdForStaff(String email, Long bookId);
 
-    BookResponseStaff updateBookStatus(String email, Long bookId, boolean active);
+    StaffBookResponse updateBookStatus(String email, Long bookId, boolean active);
+
+    Page<StaffBookResponse> getAllBooksAdvanceForStaff(String email, String genre, String author, String publisher, String isbn, int page, int size);
 }

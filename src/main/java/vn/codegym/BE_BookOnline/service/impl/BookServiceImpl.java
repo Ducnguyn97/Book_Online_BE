@@ -14,6 +14,7 @@ import vn.codegym.BE_BookOnline.dto.request.BookCreateRequest;
 import vn.codegym.BE_BookOnline.dto.response.BookDetailsResponse;
 import vn.codegym.BE_BookOnline.dto.response.BookResponse;
 import vn.codegym.BE_BookOnline.dto.response.StaffBookResponse;
+import vn.codegym.BE_BookOnline.dto.response.UpdateStockQuantityResponse;
 import vn.codegym.BE_BookOnline.model.Book;
 import vn.codegym.BE_BookOnline.model.Enum.OrderStatus;
 import vn.codegym.BE_BookOnline.model.Genre;
@@ -254,6 +255,11 @@ public class BookServiceImpl implements BookService {
         return relatedBooks.stream()
                 .map(this::mapToBookResponse)
                 .toList();
+    }
+
+    @Override
+    public UpdateStockQuantityResponse updateStockQuantity(String email, Long bookId, int quantity) {
+        return null;
     }
 
 
