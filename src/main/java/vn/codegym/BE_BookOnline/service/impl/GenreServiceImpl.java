@@ -82,4 +82,9 @@ public class GenreServiceImpl implements GenreService {
                 .name(existingGenre.getNameTypeBook())
                 .build();
     }
+
+    @Override
+    public void deleteGenresByStaffId(String email, Long genreId) {
+
+    }
 }

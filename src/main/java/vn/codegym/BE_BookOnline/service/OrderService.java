@@ -84,4 +84,6 @@ public interface OrderService {
      * @param status  tên status mới (VD: "CONFIRMED", "SHIPPING", "DELIVERED")
      */
     OrderResponse updateOrderStatus(Long orderId, String status);
+
+    OrderResponse UpdateOrderStatusByStaff(String email, Long orderId, String status);
 }

@@ -14,4 +14,6 @@ public interface GenreService {
     GenreResponse createGenre(String email, GenreCreateRequest request);
 
     GenreResponse updateGenre(String email, Long genreId, GenreCreateRequest request);
+
+    void deleteGenresByStaffId(String email, Long genreId);
 }

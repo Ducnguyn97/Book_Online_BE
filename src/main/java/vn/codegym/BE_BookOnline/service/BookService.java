@@ -6,6 +6,7 @@ import vn.codegym.BE_BookOnline.dto.request.BookCreateRequest;
 import vn.codegym.BE_BookOnline.dto.response.BookDetailsResponse;
 import vn.codegym.BE_BookOnline.dto.response.BookResponse;
 import vn.codegym.BE_BookOnline.dto.response.StaffBookResponse;
+import vn.codegym.BE_BookOnline.dto.response.UpdateStockQuantityResponse;
 
 import java.math.BigDecimal;
 import java.util.List;
@@ -35,4 +36,5 @@ public interface BookService {
     List<BookResponse> getRelatedBooks(Long bookId);
 
 
+    UpdateStockQuantityResponse updateStockQuantity(String email, Long bookId, int quantity);
 }
