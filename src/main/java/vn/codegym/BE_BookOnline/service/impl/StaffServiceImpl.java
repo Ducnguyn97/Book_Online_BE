@@ -43,8 +43,11 @@ public class StaffServiceImpl implements StaffService {
     }
 
     @Override
-    public StaffBookResponse getBookByIdForStaff(String email, Long bookId) {
-        return null;
+    @Transactional(readOnly = true)
+    public StaffBookResponse getBookByIdForStaff(Long bookId) {
+        Book book = bookRepository.findByIdWithGenres(bookId)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Không tìm thấy sách với id: " + bookId));
+        return mapToStaffBookResponse(book);
     }
 
     @Override
