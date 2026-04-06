@@ -259,9 +259,9 @@ public class OrderServiceImpl implements OrderService {
                 .orElseThrow(() -> new UsernameNotFoundException("Không tìm User với email: " + email));
         Order order = orderRepository.findByIdAndUserId(orderId, user.getId())
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND,"Không tìm thấy đơn hàng với id: " + orderId));
-        if(order.getOrderStatus() != OrderStatus.PENDING && order.getOrderStatus() != OrderStatus.PROCESSING){
+        if(order.getOrderStatus() != OrderStatus.PENDING && order.getOrderStatus() != OrderStatus.PROCESSING && order.getOrderStatus() != OrderStatus.CONFIRMED){
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST,
-                    "Chỉ được phép hủy đơn hàng khi trạng thái là PENDING hoặc PROCESSING. Trạng thái hiện tại: " + order.getOrderStatus());
+                    "Chỉ được phép hủy đơn hàng khi trạng thái là PENDING, PROCESSING hoặc CONFIRMED. Trạng thái hiện tại: " + order.getOrderStatus());
         }
         // hoan tra lai ton kho
         order.getOrderDetails().forEach(detail -> {
@@ -306,9 +306,14 @@ public class OrderServiceImpl implements OrderService {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST,
                     String.format("Sách '%s' chỉ còn %d cuốn trong kho.",
                             book.getNameBook(), book.getQuantityBook()));
+        }else if (requestedQuantity <= 0) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST,
+                    "Số lượng đặt hàng phải lớn hơn 0.");
+        }else if(book.getQuantityBook() == 0){
+                throw new ResponseStatusException(HttpStatus.BAD_REQUEST,
+                        String.format("Sách '%s' đã hết hàng.", book.getNameBook()));
         }
     }
-
     private String buildFullAddress(String street, String wardName,
                                     String districtName, String provinceName) {
         return String.join(", ", street, wardName, districtName, provinceName);
@@ -382,28 +387,30 @@ public class OrderServiceImpl implements OrderService {
 
     @Override
     @Transactional
-    public OrderResponse updateOrderStatus(Long orderId, String status) {
+    public OrderResponse updateOrderStatus(Long orderId, OrderStatus status, String cancelReason) {
         Order order = orderRepository.findByIdWithDetails(orderId)
                 .orElseThrow(() -> new ResponseStatusException
                         (HttpStatus.NOT_FOUND, "Không tìm thấy đơn hàng với id: " + orderId));
         try {
-            OrderStatus newStatus = OrderStatus.valueOf(status.toUpperCase());
-            order.setOrderStatus(newStatus);
-            if (newStatus == OrderStatus.COMPLETED) {
+            order.setOrderStatus(status);
+            if (status == OrderStatus.COMPLETED) {
                 order.setCompleteAt(LocalDateTime.now());
                 order.setPaymentStatus(PaymentStatus.PAID);
             }
         } catch (IllegalArgumentException e) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Trạng thái đơn hàng không hợp lệ: " + status);
         }
+       if (status == OrderStatus.CANCELLED) {
+        if(cancelReason == null || cancelReason.isBlank()){
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Lý do hủy đơn hàng không được để trống khi trạng thái là CANCELLED");
+        }
+        order.setCancellationReason(cancelReason);
+        order.setCancelAt(LocalDateTime.now());
+       }
         Order savedOrder = orderRepository.save(order);
         return mapToOrderResponse(savedOrder);
     }
 
-    @Override
-    public OrderResponse UpdateOrderStatusByStaff(String email, Long orderId, String status) {
-        return null;
-    }
 
     private OrderResponse mapToOrderResponse(Order order) {
         List<OrderItemResponse> items = order.getOrderDetails().stream()

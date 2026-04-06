@@ -38,6 +38,8 @@ public class Endpoints {
     };
     public static final String[] STAFF_ENDPOINT = {
             "/api/staff/books/**",
+                "/api/staff/genres/**",
+                "/api/staff/orders/**"
 
     };
 }

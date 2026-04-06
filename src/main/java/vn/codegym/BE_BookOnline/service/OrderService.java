@@ -5,6 +5,7 @@ import org.springframework.data.domain.Pageable;
 import vn.codegym.BE_BookOnline.dto.request.OrderRequest;
 import vn.codegym.BE_BookOnline.dto.response.CheckoutResponse;
 import vn.codegym.BE_BookOnline.dto.response.OrderResponse;
+import vn.codegym.BE_BookOnline.model.Enum.OrderStatus;
 
 import java.math.BigDecimal;
 import java.util.List;
@@ -83,7 +84,6 @@ public interface OrderService {
      *
      * @param status  tên status mới (VD: "CONFIRMED", "SHIPPING", "DELIVERED")
      */
-    OrderResponse updateOrderStatus(Long orderId, String status);
+    OrderResponse updateOrderStatus(Long orderId, OrderStatus status, String cancelReason);
 
-    OrderResponse UpdateOrderStatusByStaff(String email, Long orderId, String status);
 }

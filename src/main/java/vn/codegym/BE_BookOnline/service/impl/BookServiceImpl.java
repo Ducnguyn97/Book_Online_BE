@@ -18,10 +18,12 @@ import vn.codegym.BE_BookOnline.dto.response.UpdateStockQuantityResponse;
 import vn.codegym.BE_BookOnline.model.Book;
 import vn.codegym.BE_BookOnline.model.Enum.OrderStatus;
 import vn.codegym.BE_BookOnline.model.Genre;
+import vn.codegym.BE_BookOnline.model.User;
 import vn.codegym.BE_BookOnline.repository.BookRepository;
 import vn.codegym.BE_BookOnline.repository.CartItemRepository;
 import vn.codegym.BE_BookOnline.repository.GenreRepository;
 import vn.codegym.BE_BookOnline.repository.OrderDetailRepository;
+import vn.codegym.BE_BookOnline.repository.UserRepository;
 import vn.codegym.BE_BookOnline.service.BookService;
 
 import java.math.BigDecimal;
@@ -37,6 +39,7 @@ public class BookServiceImpl implements BookService {
     private final GenreRepository genreRepository;
     private final OrderDetailRepository orderDetailRepository;
     private final CartItemRepository cartItemRepository;
+    private final UserRepository userRepository;
     @Transactional
     @Override
     public StaffBookResponse createBook(BookCreateRequest request, String email) {
@@ -89,7 +92,7 @@ public class BookServiceImpl implements BookService {
     @Transactional
     @Override
     public StaffBookResponse updateBook(Long bookId, BookCreateRequest request, String email) {
-        Book bookToUpdate = bookRepository.findById(bookId)
+        Book bookToUpdate = bookRepository.findByIdWithGenres(bookId)
                 .orElseThrow(() -> new ResponseStatusException(
                         HttpStatus.NOT_FOUND,
                         "Không tìm thấy sách với ID: " + bookId));
@@ -101,8 +104,9 @@ public class BookServiceImpl implements BookService {
                 .toList();
         String newName = request.getName().trim();
 
-        if(bookRepository.existsByNameBookIgnoreCase(newName)){
-            throw new ResponseStatusException(HttpStatus.CONFLICT, "Tên sách đã đã tồn tại: " + request.getName());
+        if (!bookToUpdate.getNameBook().equalsIgnoreCase(newName)
+                && bookRepository.existsByNameBookIgnoreCase(newName)) {
+            throw new ResponseStatusException(HttpStatus.CONFLICT, "Tên sách đã tồn tại: " + newName);
         }
 
         bookToUpdate.setNameBook(newName);
@@ -114,9 +118,25 @@ public class BookServiceImpl implements BookService {
         bookToUpdate.setIsbnBook(request.getIsbn());
         bookToUpdate.setImageUrls(request.getImageUrls());
         bookToUpdate.setTypeBooks(genres);
-        bookRepository.save(bookToUpdate);
+        Book savedBook = bookRepository.save(bookToUpdate);
 
-        return null;
+        return StaffBookResponse.builder()
+                .id(savedBook.getId())
+                .name(savedBook.getNameBook())
+                .author(savedBook.getAuthorBook())
+                .description(savedBook.getDescriptionBook())
+                .price(savedBook.getPriceBook())
+                .quantity(savedBook.getQuantityBook())
+                .publisher(savedBook.getPublisherBook())
+                .isbn(savedBook.getIsbnBook())
+                .imagesUrls(savedBook.getImageUrls())
+                .genres(genres.stream().map(Genre::getNameTypeBook).toList())
+                .discountBook(savedBook.getDiscountBook())
+                .averageRating(savedBook.getAverageRating())
+                .bookStatus(savedBook.getStatusBook())
+                .createdAt(savedBook.getDateCreated())
+                .createdBy(savedBook.getCreatedBy())
+                .build();
     }
 
     @Transactional
@@ -258,8 +278,24 @@ public class BookServiceImpl implements BookService {
     }
 
     @Override
+    @Transactional
     public UpdateStockQuantityResponse updateStockQuantity(String email, Long bookId, int quantity) {
-        return null;
+        User user = userRepository.findByEmail(email)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Không tìm thấy người dùng với email: " + email));
+        Book book = bookRepository.findByIdAndNotDeleted(bookId).orElseThrow(
+                () -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Không tìm thấy sách với ID: " + bookId)
+        );
+        if (quantity < 0) {
+                throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Số lượng không được âm");
+        }
+        book.setQuantityBook(quantity);
+        bookRepository.save(book);      
+        return UpdateStockQuantityResponse.builder()
+        . bookId(book.getId())
+        . newStockQuantity(book.getQuantityBook())
+        . updatedBy(user.getFullName())
+        . updatedDate(java.time.LocalDateTime.now())
+        .build();
     }
 
 
@@ -280,4 +316,5 @@ public class BookServiceImpl implements BookService {
                 .genres(genres)
                 .build();
     }
+
 }

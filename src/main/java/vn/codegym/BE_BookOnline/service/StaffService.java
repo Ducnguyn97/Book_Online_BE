@@ -8,7 +8,7 @@ public interface StaffService {
 
     StaffBookResponse getBookByIdForStaff(Long bookId);
 
-    StaffBookResponse updateBookStatus(String email, Long bookId, boolean active);
+    StaffBookResponse updateBookStatus(Long bookId, boolean active);
 
     Page<StaffBookResponse> getAllBooksAdvanceForStaff(String email, String genre, String author, String publisher, String isbn, int page, int size);
 }

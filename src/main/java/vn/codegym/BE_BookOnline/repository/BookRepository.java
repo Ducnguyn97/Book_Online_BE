@@ -104,4 +104,32 @@ public interface BookRepository extends JpaRepository<Book, Long> {
 
             """)
     Page<Book> getAllBookForStaff(@Param("keyword") String keyword, @Param("status") String status, Pageable pageable);
+
+    @Query(value ="""
+    select distinct b from Book b
+    left join fetch b.typeBooks g
+    where (:genre is null or lower(g.nameTypeBook) like lower(:genre))
+    and (:author is null or lower(b.authorBook) like lower(:author))
+    and (:publisher is null or lower(b.publisherBook) like lower(:publisher))
+    and (:isbn is null or lower(b.isbnBook) like lower(:isbn))
+    """, countQuery = """
+    select count(distinct b.id) from Book b
+        left join b.typeBooks g
+        where (:genre is null or lower(g.nameTypeBook) like lower(:genre))
+        and (:author is null or lower(b.authorBook) like lower(:author))
+        and (:publisher is null or lower(b.publisherBook) like lower(:publisher))
+        and (:isbn is null or lower(b.isbnBook) like lower(:isbn))
+        """)
+        Page<Book> getAllBookAdvanceForStaff(@Param("genre") String genre,
+         @Param("author") String author, 
+         @Param("publisher") String publisher,
+         @Param("isbn") String isbn, 
+         Pageable pageable);   
+         
+     @Query(value = """
+                     select b from Book b
+                     where b.id = :bookId
+                     and b.is_deleted = false
+                     """, nativeQuery = true)
+        Optional<Book> findByIdAndNotDeleted(@Param("bookId") Long bookId);
 }

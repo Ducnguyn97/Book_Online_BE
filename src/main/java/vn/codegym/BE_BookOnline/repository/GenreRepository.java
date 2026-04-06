@@ -22,4 +22,11 @@ public interface GenreRepository extends JpaRepository<Genre, Long> {
     boolean existsByNameTypeBookIgnoreCase(String nameTypeBook);
 
     Optional<Genre> findByNameTypeBookIgnoreCase(String nameTypeBook);
+
+    @Query(value = """
+            Select g.id, g.name_type_book
+            from book_type g
+            where g.is_deleted = false
+            """ , nativeQuery = true)
+    List<Genre> findAllGenres();  
 }

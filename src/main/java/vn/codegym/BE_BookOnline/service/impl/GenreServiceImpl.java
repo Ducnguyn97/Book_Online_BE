@@ -20,7 +20,7 @@ public class GenreServiceImpl implements GenreService {
 
     @Override
     public List<GenreResponse> findAllGenres() {
-        List<Genre> genres = genreRepository.findAll();
+        List<Genre> genres = genreRepository.findAllGenres();
 
         return genres.stream()
                 .map(genre -> GenreResponse.builder()
@@ -85,6 +85,10 @@ public class GenreServiceImpl implements GenreService {
 
     @Override
     public void deleteGenresByStaffId(String email, Long genreId) {
-
+        Genre existingGenre = genreRepository.findById(genreId)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Không tìm thấy loại sách với ID: " + genreId));
+        existingGenre.setIsDeleted(true);
+        genreRepository.save(existingGenre);
+        log.info("Deleted genre id {} by {}", genreId, email);
     }
 }

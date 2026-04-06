@@ -14,6 +14,7 @@ import vn.codegym.BE_BookOnline.dto.response.StaffBookResponse;
 import vn.codegym.BE_BookOnline.model.Book;
 import vn.codegym.BE_BookOnline.model.Genre;
 import vn.codegym.BE_BookOnline.model.User;
+import vn.codegym.BE_BookOnline.model.Enum.BookStatus;
 import vn.codegym.BE_BookOnline.repository.BookRepository;
 import vn.codegym.BE_BookOnline.repository.UserRepository;
 import vn.codegym.BE_BookOnline.service.StaffService;
@@ -51,13 +52,28 @@ public class StaffServiceImpl implements StaffService {
     }
 
     @Override
-    public StaffBookResponse updateBookStatus(String email, Long bookId, boolean active) {
-        return null;
+    public StaffBookResponse updateBookStatus(Long bookId, boolean active) {
+        Book book = bookRepository.findByIdWithGenres(bookId)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Không tìm thấy sách với id: " + bookId));
+        book.setStatusBook(active ? BookStatus.ACTIVE : BookStatus.INACTIVE);
+        bookRepository.save(book);
+        return mapToStaffBookResponse(book);
     }
 
     @Override
     public Page<StaffBookResponse> getAllBooksAdvanceForStaff( String email, String genre, String author, String publisher, String isbn, int page, int size) {
-        return null;
+            int safePage = Math.max(page,0);
+            int safeSize = Math.min(Math.max(size,0),20);
+
+            String cleanGenre = (genre !=null && !genre.isBlank()) ? genre.trim().toLowerCase() : null;
+            String cleanAuthor = (author !=null && !author.isBlank()) ? author.trim().toLowerCase() : null;
+            
+            String cleanPublisher = (publisher !=null && !publisher.isBlank()) ? publisher.trim().toLowerCase() : null;
+            String cleanIsbn = (isbn !=null && !isbn.isBlank()) ? isbn.trim().toLowerCase() : null;
+            
+            Pageable pageable = PageRequest.of(safePage,safeSize);
+            Page<Book> books = bookRepository.getAllBookAdvanceForStaff(cleanGenre, cleanAuthor, cleanPublisher, cleanIsbn,pageable);
+            return books.map(this::mapToStaffBookResponse); 
     }
 
     private StaffBookResponse mapToStaffBookResponse(Book book) {

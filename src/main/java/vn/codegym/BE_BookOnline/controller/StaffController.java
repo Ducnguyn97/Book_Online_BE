@@ -13,6 +13,7 @@ import vn.codegym.BE_BookOnline.dto.response.GenreResponse;
 import vn.codegym.BE_BookOnline.dto.response.OrderResponse;
 import vn.codegym.BE_BookOnline.dto.response.StaffBookResponse;
 import vn.codegym.BE_BookOnline.dto.response.UpdateStockQuantityResponse;
+import vn.codegym.BE_BookOnline.model.Enum.OrderStatus;
 import vn.codegym.BE_BookOnline.service.BookService;
 import vn.codegym.BE_BookOnline.service.GenreService;
 import vn.codegym.BE_BookOnline.service.OrderService;
@@ -83,11 +84,10 @@ public class StaffController {
     }
     //cap nhat trang thai sach
     @PatchMapping("/books/{bookId}/status")
-    public ResponseEntity<StaffBookResponse> updateBookStatus(Authentication authentication,
-                                                              @PathVariable Long bookId,
+    public ResponseEntity<StaffBookResponse> updateBookStatus(@PathVariable Long bookId,
                                                               @RequestParam boolean active) {
-        String email = authentication.getName();
-        StaffBookResponse updatedBook = staffService.updateBookStatus(email, bookId, active);
+        
+        StaffBookResponse updatedBook = staffService.updateBookStatus(bookId, active);
         return ResponseEntity.ok(updatedBook);
     }
     //tim kiem sach nang cao
@@ -105,29 +105,24 @@ public class StaffController {
     }
 
     @DeleteMapping("/genres/{genresId}")
-    public ResponseEntity<?> deleteGenre(Authentication authentication, @PathVariable("genresId") Long genresId) {
+    public ResponseEntity<Void> deleteGenre(Authentication authentication, @PathVariable("genresId") Long genresId) {
         String email = authentication.getName();
         genreService.deleteGenresByStaffId(email,genresId);
-        return ResponseEntity.ok("Xoá Genres thành công.");
+        return ResponseEntity.ok().build();
     }
 
     @PatchMapping("/books/{bookId}/quantity")
     public ResponseEntity<UpdateStockQuantityResponse> updateStockQuantity(Authentication authentication,
-                                                                           @PathVariable("bookId") Long bookId,
-                                                                           @RequestParam int quantity){
+                                                                           @PathVariable("bookId") Long bookId,                                                                 @RequestParam int quantity){
         String email = authentication.getName();
         UpdateStockQuantityResponse updateStockQuantityResponse = bookService.updateStockQuantity(email, bookId, quantity);
         return ResponseEntity.ok(updateStockQuantityResponse);
     }
     @PatchMapping("/orders/{orderId}/status")
-    public ResponseEntity<OrderResponse> updateOrderStatusByStaff(Authentication authentication,
-                                                                  @PathVariable("orderId") Long orderId,
-                                                                  @RequestParam String status){
-        String email = authentication.getName();
-        OrderResponse orderResponse = orderService.UpdateOrderStatusByStaff(email, orderId, status);
+    public ResponseEntity<OrderResponse> updateOrderStatusByStaff(@PathVariable("orderId") Long orderId,
+                                                                  @RequestParam OrderStatus status,
+                                                                @RequestParam String cancelReason) {
+        OrderResponse orderResponse = orderService.updateOrderStatus( orderId, status, cancelReason);
         return ResponseEntity.ok(orderResponse);
     }
-
-
-
 }

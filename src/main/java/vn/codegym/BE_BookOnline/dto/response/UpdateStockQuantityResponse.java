@@ -14,7 +14,6 @@ import java.time.LocalDateTime;
 public class UpdateStockQuantityResponse {
     private Long bookId;
     private Integer newStockQuantity;
-    private String message;
     private String updatedBy;
     private LocalDateTime updatedDate;
 }
