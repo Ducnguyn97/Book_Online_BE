@@ -77,9 +77,8 @@ public class StaffController {
     }
     //lay thong tin sach theo id
     @GetMapping("/books/{bookId}")
-    public ResponseEntity<StaffBookResponse> getBookById(Authentication authentication,@PathVariable Long bookId) {
-        String email = authentication.getName();
-        StaffBookResponse book = staffService.getBookByIdForStaff(email,bookId);
+    public ResponseEntity<StaffBookResponse> getBookById(@PathVariable Long bookId) {
+        StaffBookResponse book = staffService.getBookByIdForStaff(bookId);
         return ResponseEntity.ok(book);
     }
     //cap nhat trang thai sach

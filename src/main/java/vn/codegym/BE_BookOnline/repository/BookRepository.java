@@ -90,18 +90,18 @@ public interface BookRepository extends JpaRepository<Book, Long> {
     @Query(value = """
             select distinct b from Book b
                         left join fetch b.typeBooks g
-            where (:keyword is null or b.nameBook like %:keyword %
-                                    or b.authorBook like %:keyword %
-                                    or g.nameTypeBook like %:keyword %
-                                    and (:status is null or b.statusBook = :status))
+            where (:keyword is null or lower(b.nameBook) like lower(concat('%', :keyword, '%'))
+                                    or lower(b.authorBook) like lower(concat('%', :keyword, '%'))
+                                    or lower(g.nameTypeBook) like lower(concat('%', :keyword, '%')))
+                                    and (:status is null or b.statusBook = :status)
             """, countQuery = """
             select count(distinct b.id) from Book b
             left join b.typeBooks g
-            where (:keyword is null or b.nameBook like %:keyword %
-                                    or b.authorBook like %:keyword %
-                                    or g.nameTypeBook like %:keyword %
-                                    and (:status is null or b.statusBook = :status))
-            
+            where (:keyword is null or lower(b.nameBook) like lower(concat('%', :keyword, '%'))
+                                    or lower(b.authorBook) like lower(concat('%', :keyword, '%'))
+                                    or lower(g.nameTypeBook) like lower(concat('%', :keyword, '%')))
+                                    and (:status is null or b.statusBook = :status)
+
             """)
-    Page<Book> getAllBookForStaff(@RequestParam("keyword") String keyword, @RequestParam("status") String status, Pageable pageable);
+    Page<Book> getAllBookForStaff(@Param("keyword") String keyword, @Param("status") String status, Pageable pageable);
 }

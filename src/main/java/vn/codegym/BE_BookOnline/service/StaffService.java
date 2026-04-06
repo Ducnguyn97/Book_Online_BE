@@ -6,7 +6,7 @@ import vn.codegym.BE_BookOnline.dto.response.StaffBookResponse;
 public interface StaffService {
     Page<StaffBookResponse> getAllBooksForStaff(String email, String keyword, String status, int page, int size);
 
-    StaffBookResponse getBookByIdForStaff(String email, Long bookId);
+    StaffBookResponse getBookByIdForStaff(Long bookId);
 
     StaffBookResponse updateBookStatus(String email, Long bookId, boolean active);
 
