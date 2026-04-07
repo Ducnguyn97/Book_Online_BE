@@ -7,6 +7,9 @@ import org.springframework.stereotype.Repository;
 import vn.codegym.BE_BookOnline.dto.response.GenreResponse;
 import vn.codegym.BE_BookOnline.model.Genre;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+
 import java.util.List;
 import java.util.Optional;
 
@@ -28,5 +31,5 @@ public interface GenreRepository extends JpaRepository<Genre, Long> {
             from book_type g
             where g.is_deleted = false
             """ , nativeQuery = true)
-    List<Genre> findAllGenres();  
+    Page<Genre> findAllGenres(Pageable pageable);  
 }

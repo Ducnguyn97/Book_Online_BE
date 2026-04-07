@@ -11,6 +11,10 @@ import vn.codegym.BE_BookOnline.model.Genre;
 import vn.codegym.BE_BookOnline.repository.GenreRepository;
 import vn.codegym.BE_BookOnline.service.GenreService;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+
 import java.util.List;
 @Service
 @RequiredArgsConstructor
@@ -19,15 +23,17 @@ public class GenreServiceImpl implements GenreService {
     private final GenreRepository genreRepository;
 
     @Override
-    public List<GenreResponse> findAllGenres() {
-        List<Genre> genres = genreRepository.findAllGenres();
+    public Page<GenreResponse> findAllGenres(int page, int size) {
+        int safePage = Math.max(page,0);
+        int safeSize = Math.min(Math.max(size,0),10);   
+        Pageable pageable = PageRequest.of(safePage,safeSize);
 
-        return genres.stream()
-                .map(genre -> GenreResponse.builder()
+        Page<Genre> genres = genreRepository.findAllGenres(pageable);
+
+        return genres.map(genre -> GenreResponse.builder()
                         .id(genre.getId())
                         .name(genre.getNameTypeBook())
-                        .build())
-                .toList();
+                        .build());
     }
 
     @Override

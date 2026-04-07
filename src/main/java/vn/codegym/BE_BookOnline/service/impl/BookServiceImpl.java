@@ -177,7 +177,6 @@ public class BookServiceImpl implements BookService {
         Book book = bookRepository.findById(bookId)
                 .orElseThrow(() -> new
                         ResponseStatusException(HttpStatus.NOT_FOUND, "Không tìm thấy sách với ID: " + bookId));
-        bookRepository.save(book);
         List<String> imageUrls = book.getImageUrls() == null ? List.of() : book.getImageUrls();
         List<String> genres = book.getTypeBooks() == null
                 ? List.of()

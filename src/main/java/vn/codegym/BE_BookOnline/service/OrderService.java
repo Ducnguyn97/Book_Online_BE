@@ -3,6 +3,7 @@ package vn.codegym.BE_BookOnline.service;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import vn.codegym.BE_BookOnline.dto.request.OrderRequest;
+import vn.codegym.BE_BookOnline.dto.request.OrderStatusRequest;
 import vn.codegym.BE_BookOnline.dto.response.CheckoutResponse;
 import vn.codegym.BE_BookOnline.dto.response.OrderResponse;
 import vn.codegym.BE_BookOnline.model.Enum.OrderStatus;
@@ -84,6 +85,6 @@ public interface OrderService {
      *
      * @param status  tên status mới (VD: "CONFIRMED", "SHIPPING", "DELIVERED")
      */
-    OrderResponse updateOrderStatus(Long orderId, OrderStatus status, String cancelReason);
+    OrderResponse updateOrderStatus(Long orderId, OrderStatusRequest request);
 
 }

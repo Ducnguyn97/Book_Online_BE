@@ -9,6 +9,8 @@ import org.springframework.web.bind.annotation.RestController;
 import vn.codegym.BE_BookOnline.dto.response.GenreResponse;
 import vn.codegym.BE_BookOnline.service.GenreService;
 
+import org.springframework.data.domain.Page;
+
 import java.util.List;
 
 @RestController
@@ -18,8 +20,9 @@ public class GenreController {
     private final GenreService genreService;
 
     @GetMapping
-    public ResponseEntity<List<GenreResponse>> getAllGenres(){
-        List<GenreResponse> genres = genreService.findAllGenres();
+    public ResponseEntity<Page<GenreResponse>> getAllGenres(@RequestParam(defaultValue = "0") int page,
+                                                          @RequestParam(defaultValue = "10") int size) {
+        Page<GenreResponse> genres = genreService.findAllGenres(page, size);
         return ResponseEntity.ok(genres);
     }
     @GetMapping("/with-books")

@@ -52,6 +52,7 @@ public class StaffServiceImpl implements StaffService {
     }
 
     @Override
+    @Transactional
     public StaffBookResponse updateBookStatus(Long bookId, boolean active) {
         Book book = bookRepository.findByIdWithGenres(bookId)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Không tìm thấy sách với id: " + bookId));

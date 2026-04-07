@@ -3,12 +3,15 @@ package vn.codegym.BE_BookOnline.controller;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 import vn.codegym.BE_BookOnline.dto.request.BookCreateRequest;
 import vn.codegym.BE_BookOnline.dto.request.GenreCreateRequest;
+import vn.codegym.BE_BookOnline.dto.request.OrderStatusRequest;
 import vn.codegym.BE_BookOnline.dto.response.GenreResponse;
 import vn.codegym.BE_BookOnline.dto.response.OrderResponse;
 import vn.codegym.BE_BookOnline.dto.response.StaffBookResponse;
@@ -120,9 +123,8 @@ public class StaffController {
     }
     @PatchMapping("/orders/{orderId}/status")
     public ResponseEntity<OrderResponse> updateOrderStatusByStaff(@PathVariable("orderId") Long orderId,
-                                                                  @RequestParam OrderStatus status,
-                                                                @RequestParam String cancelReason) {
-        OrderResponse orderResponse = orderService.updateOrderStatus( orderId, status, cancelReason);
+                                                                  @Valid @RequestBody OrderStatusRequest request){ 
+        OrderResponse orderResponse = orderService.updateOrderStatus(orderId, request);
         return ResponseEntity.ok(orderResponse);
     }
 }

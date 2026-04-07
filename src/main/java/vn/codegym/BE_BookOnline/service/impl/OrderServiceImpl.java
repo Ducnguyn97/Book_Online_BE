@@ -10,6 +10,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.server.ResponseStatusException;
 import vn.codegym.BE_BookOnline.dto.request.OrderRequest;
+import vn.codegym.BE_BookOnline.dto.request.OrderStatusRequest;
 import vn.codegym.BE_BookOnline.dto.response.*;
 import vn.codegym.BE_BookOnline.model.*;
 import vn.codegym.BE_BookOnline.model.Enum.OrderStatus;
@@ -387,26 +388,27 @@ public class OrderServiceImpl implements OrderService {
 
     @Override
     @Transactional
-    public OrderResponse updateOrderStatus(Long orderId, OrderStatus status, String cancelReason) {
+    public OrderResponse updateOrderStatus(Long orderId, OrderStatusRequest request) {
         Order order = orderRepository.findByIdWithDetails(orderId)
                 .orElseThrow(() -> new ResponseStatusException
                         (HttpStatus.NOT_FOUND, "Không tìm thấy đơn hàng với id: " + orderId));
-        try {
-            order.setOrderStatus(status);
-            if (status == OrderStatus.COMPLETED) {
-                order.setCompleteAt(LocalDateTime.now());
-                order.setPaymentStatus(PaymentStatus.PAID);
+        if (!order.getOrderStatus().canTransitionTo(request.getNewStatus())) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST,
+                    "Không thể chuyển trạng thái từ " + order.getOrderStatus() + " sang " + request.getNewStatus());
+        }
+        if (request.getNewStatus() == OrderStatus.CANCELLED) {
+            if (request.getReason() == null || request.getReason().isBlank()) {
+                throw new ResponseStatusException(HttpStatus.BAD_REQUEST,
+                        "Lý do hủy đơn hàng không được để trống khi trạng thái là CANCELLED");
             }
-        } catch (IllegalArgumentException e) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Trạng thái đơn hàng không hợp lệ: " + status);
+            order.setCancellationReason(request.getReason());
+            order.setCancelAt(LocalDateTime.now());
         }
-       if (status == OrderStatus.CANCELLED) {
-        if(cancelReason == null || cancelReason.isBlank()){
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Lý do hủy đơn hàng không được để trống khi trạng thái là CANCELLED");
+        order.setOrderStatus(request.getNewStatus());
+        if (request.getNewStatus() == OrderStatus.COMPLETED) {
+            order.setCompleteAt(LocalDateTime.now());
+            order.setPaymentStatus(PaymentStatus.PAID);
         }
-        order.setCancellationReason(cancelReason);
-        order.setCancelAt(LocalDateTime.now());
-       }
         Order savedOrder = orderRepository.save(order);
         return mapToOrderResponse(savedOrder);
     }
