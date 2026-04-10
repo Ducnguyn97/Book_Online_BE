@@ -1,4 +1,4 @@
-package vn.codegym.BE_BookOnline.service.jwt;
+package vn.codegym.BE_BookOnline.jwt.jwt;
 
 import io.jsonwebtoken.*;
 import io.jsonwebtoken.security.Keys;

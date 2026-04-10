@@ -16,7 +16,7 @@ import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.web.cors.CorsConfigurationSource;
 import vn.codegym.BE_BookOnline.service.impl.UserSecurityServiceImpl;
-import vn.codegym.BE_BookOnline.service.jwt.JwtFilter;
+import vn.codegym.BE_BookOnline.jwt.jwt.JwtFilter;
 
 @Configuration
 @RequiredArgsConstructor

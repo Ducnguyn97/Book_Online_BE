@@ -1,4 +1,4 @@
-package vn.codegym.BE_BookOnline.service.jwt;
+package vn.codegym.BE_BookOnline.jwt.jwt;
 
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;

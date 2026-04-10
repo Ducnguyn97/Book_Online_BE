@@ -33,7 +33,7 @@ import vn.codegym.BE_BookOnline.repository.RoleRepository;
 import vn.codegym.BE_BookOnline.repository.UserRepository;
 import vn.codegym.BE_BookOnline.service.EmailService;
 import vn.codegym.BE_BookOnline.service.UserService;
-import vn.codegym.BE_BookOnline.service.jwt.JwtService;
+import vn.codegym.BE_BookOnline.jwt.jwt.JwtService;
 
 import java.io.IOException;
 import java.security.GeneralSecurityException;
