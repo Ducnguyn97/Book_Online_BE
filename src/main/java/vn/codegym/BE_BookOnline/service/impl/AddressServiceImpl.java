@@ -48,7 +48,6 @@ List<Address> addresses = addressRepository.findByUserIdAndActiveAddress(user.ge
          return mapToResponse(address);
     }
 
-
     @Override
     @Transactional
     public AddressResponse createAddress(String email, AddressRequest request) {

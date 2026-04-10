@@ -6,7 +6,6 @@ import jakarta.persistence.AttributeConverter;
 import jakarta.persistence.Converter;
 
 import java.util.List;
-
 @Converter
 public class StringListConverter implements AttributeConverter<List<String>, String> {
 
